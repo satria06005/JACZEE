@@ -1,0 +1,69 @@
+import ProductGrid from "@/components/ProductGrid";
+import { prisma } from "@/lib/prisma";
+import Image from "next/image";
+import Link from "next/link";
+
+export default async function ShopPage() {
+  const dbProducts = await prisma.product.findMany({
+    include: { category: true }
+  });
+
+  const products = dbProducts.map((product) => {
+    const p = product as any;
+    const isDiscounted = p.discountPercent && p.discountPercent > 0;
+    const finalPrice = isDiscounted ? p.price - (p.price * p.discountPercent / 100) : p.price;
+    
+    return {
+      id: p.id,
+      name: p.name,
+      price: `Rp ${finalPrice.toLocaleString('id-ID')}`,
+      originalPrice: isDiscounted ? `Rp ${p.price.toLocaleString('id-ID')}` : undefined,
+      discountPercent: isDiscounted ? p.discountPercent : undefined,
+      imageUrl: p.imageUrl,
+      href: `/shop/${p.category.slug}/${p.id}`,
+    };
+  });
+
+  return (
+    <div className="min-h-screen bg-white text-black">
+      <div className="max-w-7xl mx-auto px-6 pt-32 pb-24">
+        
+        {/* Navigation / Filter Hint */}
+        <div className="mb-8 flex flex-col items-center">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-[0.2em] uppercase mb-8 text-center">Seluruh Koleksi</h1>
+          
+          <div className="flex gap-6 overflow-x-auto pb-4 text-xs font-semibold uppercase tracking-widest border-b border-gray-100 w-full justify-center">
+            <span className="text-black border-b-2 border-black pb-1 whitespace-nowrap cursor-default">Semua</span>
+            <Link href="/mens" className="text-gray-400 hover:text-black transition-colors whitespace-nowrap">Pria</Link>
+            <Link href="/womens" className="text-gray-400 hover:text-black transition-colors whitespace-nowrap">Wanita</Link>
+            <Link href="/kids" className="text-gray-400 hover:text-black transition-colors whitespace-nowrap">Anak</Link>
+          </div>
+        </div>
+
+        {/* Hero Banner */}
+        <div className="relative w-full h-[300px] md:h-[500px] mb-20 overflow-hidden bg-stone-900 group">
+          <Image 
+            src="https://picsum.photos/seed/jaczee-shop-all/1600/800"
+            alt="Koleksi Lengkap JACZEE"
+            fill
+            className="object-cover opacity-70 group-hover:scale-105 transition-transform duration-1000"
+          />
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-6">
+            <h2 className="text-2xl md:text-4xl font-light tracking-[0.3em] uppercase mb-4">Esensi Gaya Hidup</h2>
+            <p className="max-w-2xl text-xs md:text-sm tracking-widest text-stone-200 leading-relaxed uppercase">
+              Telusuri setiap potongan busana yang kami ciptakan untuk mendefinisikan ulang karakter dan kenyamanan Anda.
+            </p>
+          </div>
+        </div>
+        
+        {products.length > 0 ? (
+          <ProductGrid title="Katalog Produk" products={products} />
+        ) : (
+          <div className="text-center py-24 text-gray-500 uppercase tracking-widest text-sm font-semibold">
+            Belum ada produk yang tersedia.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

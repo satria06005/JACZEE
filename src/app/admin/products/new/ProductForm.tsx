@@ -42,21 +42,39 @@ export default function ProductForm({ categories }: { categories: CategoryWithSu
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="space-y-2">
-          <label htmlFor="price" className="text-sm font-semibold text-gray-700">Harga (USD) *</label>
+          <label htmlFor="priceDisplay" className="text-sm font-semibold text-gray-700">Harga (Rp) *</label>
+          <input 
+            type="text" 
+            id="priceDisplay" 
+            required 
+            placeholder="0"
+            onChange={(e) => {
+              const rawValue = e.target.value.replace(/\D/g, "");
+              const formatted = rawValue ? new Intl.NumberFormat('id-ID').format(parseInt(rawValue, 10)) : "";
+              e.target.value = formatted;
+              const hiddenInput = document.getElementById("price") as HTMLInputElement;
+              if (hiddenInput) hiddenInput.value = rawValue;
+            }}
+            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black"
+          />
+          <input type="hidden" id="price" name="price" />
+        </div>
+        
+        <div className="space-y-2">
+          <label htmlFor="discountPercent" className="text-sm font-semibold text-gray-700">Diskon (%)</label>
           <input 
             type="number" 
-            id="price" 
-            name="price" 
-            required 
+            id="discountPercent" 
+            name="discountPercent" 
             min="0"
-            step="0.01"
-            placeholder="0.00"
+            max="100"
+            defaultValue="0"
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black"
           />
         </div>
-        
+
         <div className="space-y-2">
           <label htmlFor="stock" className="text-sm font-semibold text-gray-700">Stok Awal</label>
           <input 
@@ -82,9 +100,14 @@ export default function ProductForm({ categories }: { categories: CategoryWithSu
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black bg-white text-black"
           >
             <option value="" className="text-black">Pilih Kategori...</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id} className="text-black">{cat.name}</option>
-            ))}
+            {categories.map((cat) => {
+              const nameMap: Record<string, string> = { Mens: "Pria", Womens: "Wanita", Kids: "Anak" };
+              return (
+                <option key={cat.id} value={cat.id} className="text-black">
+                  {nameMap[cat.name] || cat.name}
+                </option>
+              );
+            })}
           </select>
         </div>
 
@@ -105,15 +128,15 @@ export default function ProductForm({ categories }: { categories: CategoryWithSu
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="imageUrl" className="text-sm font-semibold text-gray-700">URL Gambar (Opsional)</label>
+        <label htmlFor="imageFile" className="text-sm font-semibold text-gray-700">Pilih Gambar</label>
         <input 
-          type="url" 
-          id="imageUrl" 
-          name="imageUrl" 
-          placeholder="https://example.com/image.jpg"
-          className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black text-sm"
+          type="file" 
+          id="imageFile" 
+          name="imageFile" 
+          accept="image/*"
+          className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800"
         />
-        <p className="text-xs text-gray-500">Biarkan kosong untuk menghasilkan gambar *dummy* otomatis.</p>
+        <p className="text-xs text-gray-500">Abaikan jika ingin menggunakan gambar *dummy* otomatis.</p>
       </div>
 
       <div className="space-y-2">

@@ -7,6 +7,8 @@ export interface Product {
   price: string;
   imageUrl: string;
   href: string;
+  discountPercent?: number;
+  originalPrice?: string;
 }
 
 export default function ProductGrid({ title, products }: { title?: string, products: Product[] }) {

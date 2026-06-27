@@ -21,7 +21,7 @@ export default function ProductCard({ product, priority }: { product: Product, p
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col relative">
       <Link href={product.href} className="group flex flex-col text-center">
         <div className="relative w-full aspect-[3/4] bg-stone-100 mb-4 overflow-hidden">
           <Image 
@@ -32,6 +32,11 @@ export default function ProductCard({ product, priority }: { product: Product, p
             priority={priority}
             className="object-cover object-center group-hover:scale-105 transition-transform duration-700" 
           />
+          {product.discountPercent && product.discountPercent > 0 && (
+            <div className="absolute top-2 left-2 md:top-4 md:left-4 bg-red-600 text-white text-[10px] md:text-xs font-bold px-2 py-1 tracking-widest uppercase">
+              Sale -{product.discountPercent}%
+            </div>
+          )}
         </div>
       </Link>
       
@@ -51,7 +56,14 @@ export default function ProductCard({ product, priority }: { product: Product, p
 
       <Link href={product.href} className="text-center group flex flex-col gap-1">
         <h3 className="text-xs tracking-widest uppercase group-hover:underline text-gray-900 line-clamp-1">{product.name}</h3>
-        <p className="text-xs tracking-widest text-stone-500">{product.price}</p>
+        {product.originalPrice ? (
+          <div className="flex items-center justify-center gap-2 text-xs tracking-widest">
+            <span className="text-stone-400 line-through">{product.originalPrice}</span>
+            <span className="text-red-600 font-semibold">{product.price}</span>
+          </div>
+        ) : (
+          <p className="text-xs tracking-widest text-stone-500">{product.price}</p>
+        )}
       </Link>
     </div>
   );

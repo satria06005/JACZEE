@@ -27,7 +27,7 @@ export default function EditProductForm({
     setIsPending(true);
     const formData = new FormData(e.currentTarget);
     try {
-      await updateProduct(formData);
+      await updateProduct(product.id, formData);
     } catch (err) {
       console.error(err);
     }
@@ -50,21 +50,39 @@ export default function EditProductForm({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="space-y-2">
-          <label htmlFor="price" className="text-sm font-semibold text-gray-700">Harga (USD) *</label>
+          <label htmlFor="priceDisplay" className="text-sm font-semibold text-gray-700">Harga (Rp) *</label>
+          <input 
+            type="text" 
+            id="priceDisplay" 
+            defaultValue={product.price ? new Intl.NumberFormat('id-ID').format(product.price) : ""}
+            required 
+            onChange={(e) => {
+              const rawValue = e.target.value.replace(/\D/g, "");
+              const formatted = rawValue ? new Intl.NumberFormat('id-ID').format(parseInt(rawValue, 10)) : "";
+              e.target.value = formatted;
+              const hiddenInput = document.getElementById("price") as HTMLInputElement;
+              if (hiddenInput) hiddenInput.value = rawValue;
+            }}
+            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black text-black"
+          />
+          <input type="hidden" id="price" name="price" defaultValue={product.price} />
+        </div>
+        
+        <div className="space-y-2">
+          <label htmlFor="discountPercent" className="text-sm font-semibold text-gray-700">Diskon (%)</label>
           <input 
             type="number" 
-            id="price" 
-            name="price" 
-            defaultValue={product.price}
-            required 
+            id="discountPercent" 
+            name="discountPercent" 
+            defaultValue={product.discountPercent || 0}
             min="0"
-            step="0.01"
+            max="100"
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black text-black"
           />
         </div>
-        
+
         <div className="space-y-2">
           <label htmlFor="stock" className="text-sm font-semibold text-gray-700">Stok</label>
           <input 
@@ -90,9 +108,14 @@ export default function EditProductForm({
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black bg-white text-black"
           >
             <option value="" className="text-black">Pilih Kategori...</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id} className="text-black">{cat.name}</option>
-            ))}
+            {categories.map((cat) => {
+              const nameMap: Record<string, string> = { Mens: "Pria", Womens: "Wanita", Kids: "Anak" };
+              return (
+                <option key={cat.id} value={cat.id} className="text-black">
+                  {nameMap[cat.name] || cat.name}
+                </option>
+              );
+            })}
           </select>
         </div>
 
@@ -113,15 +136,33 @@ export default function EditProductForm({
         </div>
       </div>
 
-      <div className="space-y-2">
-        <label htmlFor="imageUrl" className="text-sm font-semibold text-gray-700">URL Gambar</label>
+      <div className="space-y-4">
+        <label htmlFor="imageFile" className="text-sm font-semibold text-gray-700">Pilih Gambar Baru (Opsional)</label>
+        
+        {product.imageUrl && (
+          <div className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg">
+            <img src={product.imageUrl} alt="Gambar Lama" className="w-16 h-24 object-cover rounded-md shadow-sm" />
+            <div className="text-xs text-gray-500">
+              <p className="font-semibold text-black mb-1">Gambar Saat Ini</p>
+              <p className="break-all line-clamp-1">{product.imageUrl}</p>
+            </div>
+          </div>
+        )}
+
         <input 
-          type="url" 
-          id="imageUrl" 
+          type="hidden" 
           name="imageUrl" 
-          defaultValue={product.imageUrl}
-          className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black text-sm text-black"
+          value={product.imageUrl} 
         />
+
+        <input 
+          type="file" 
+          id="imageFile" 
+          name="imageFile" 
+          accept="image/*"
+          className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800"
+        />
+        <p className="text-xs text-gray-500">Pilih *file* baru jika Anda ingin mengganti gambar di atas.</p>
       </div>
 
       <div className="space-y-2">

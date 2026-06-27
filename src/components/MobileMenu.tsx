@@ -30,7 +30,8 @@ export default function MobileMenu() {
           <Link href="/mens" onClick={() => setIsOpen(false)} className="hover:opacity-50 transition-opacity border-b pb-4">Pria</Link>
           <Link href="/womens" onClick={() => setIsOpen(false)} className="hover:opacity-50 transition-opacity border-b pb-4">Wanita</Link>
           <Link href="/kids" onClick={() => setIsOpen(false)} className="hover:opacity-50 transition-opacity border-b pb-4">Anak</Link>
-          <Link href="/account" onClick={() => setIsOpen(false)} className="hover:opacity-50 transition-opacity border-b pb-4 mt-8">Akun Saya</Link>
+          <Link href="/about" onClick={() => setIsOpen(false)} className="hover:opacity-50 transition-opacity border-b pb-4 mt-8">Tentang Kami</Link>
+          <Link href="/account" onClick={() => setIsOpen(false)} className="hover:opacity-50 transition-opacity border-b pb-4">Akun Saya</Link>
         </nav>
       </div>
     </>

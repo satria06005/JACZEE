@@ -15,6 +15,7 @@ export default function Footer() {
         
         {/* Links */}
         <div className="flex flex-wrap justify-center gap-x-12 gap-y-6 text-xs md:text-sm tracking-widest uppercase font-medium text-stone-400 mb-24">
+          <Link href="/about" className="hover:text-white transition-colors duration-300">Tentang Kami</Link>
           <Link href="/country" className="hover:text-white transition-colors duration-300">Indonesia (IDR)</Link>
           <Link href="/contact" className="hover:text-white transition-colors duration-300">Kontak</Link>
           <Link href="/client-services" className="hover:text-white transition-colors duration-300">Layanan Pelanggan</Link>
@@ -26,8 +27,8 @@ export default function Footer() {
         <div className="w-full border-t border-stone-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-[10px] tracking-[0.2em] text-stone-500 uppercase">
           <span>© 2026 JACZEE. Seluruh Hak Cipta Dilindungi.</span>
           <span className="flex gap-4">
-            <Link href="#" className="hover:text-white transition-colors">Instagram</Link>
-            <Link href="#" className="hover:text-white transition-colors">Twitter</Link>
+            <Link href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Instagram</Link>
+            <Link href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Twitter</Link>
           </span>
         </div>
 

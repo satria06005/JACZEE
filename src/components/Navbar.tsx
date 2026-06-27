@@ -29,14 +29,14 @@ export default function Navbar() {
 
         {/* Right Links */}
         <div className="flex items-center gap-4 md:gap-6 text-xs tracking-widest uppercase font-medium">
-          <button className="hidden md:flex items-center gap-2 hover:opacity-70 transition-opacity">
+          <Link href="/search" className="hidden md:flex items-center gap-2 hover:opacity-70 transition-opacity">
             <Search className="w-3.5 h-3.5" />
             <span>CARI</span>
-          </button>
+          </Link>
           <Link href="/account" className="hidden md:flex hover:opacity-70 transition-opacity">AKUN</Link>
-          <button className="md:hidden hover:opacity-70">
+          <Link href="/search" className="md:hidden hover:opacity-70">
             <Search className="w-5 h-5" />
-          </button>
+          </Link>
           <CartButton />
         </div>
       </div>
