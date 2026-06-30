@@ -2,21 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, ShoppingBag, LogOut } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingBag, LogOut, Image as ImageIcon } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   const navItems = [
     { name: "Dasbor", href: "/admin", icon: LayoutDashboard },
+    { name: "Banners", href: "/admin/banners", icon: ImageIcon },
     { name: "Produk", href: "/admin/products", icon: Package },
     { name: "Pesanan", href: "/admin/orders", icon: ShoppingBag },
   ];
 
   return (
-    <div className="fixed inset-0 z-[100] bg-gray-50 flex">
+    <div className="fixed inset-0 z-[100] bg-gray-50 print:bg-white flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col h-full hidden md:flex">
+      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col h-full hidden md:flex print:hidden">
         <div className="p-6 border-b border-gray-100 flex items-baseline">
           <span className="font-bold tracking-[0.3em] text-2xl text-black">JACZEE</span>
           <span className="ml-3 font-medium tracking-widest text-xs text-gray-400">ADMIN</span>
@@ -53,7 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 h-full overflow-auto bg-gray-50 p-8">
+      <main className="flex-1 h-full overflow-auto bg-gray-50 print:bg-white p-8 print:p-0">
         {children}
       </main>
     </div>

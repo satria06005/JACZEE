@@ -1,9 +1,47 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { Package, Plus, Users, DollarSign, Activity, ShoppingBag } from "lucide-react";
+import { Package, Plus, Users, Activity, ShoppingBag, Banknote } from "lucide-react";
 
 export default async function AdminDashboard() {
   const totalProducts = await prisma.product.count();
+  
+  const paidOrders = await prisma.order.aggregate({
+    _sum: {
+      totalAmount: true
+    },
+    where: {
+      status: {
+        in: ['PAID', 'SHIPPED']
+      }
+    }
+  });
+  
+  const totalRevenue = paidOrders._sum.totalAmount || 0;
+  const formattedRevenue = new Intl.NumberFormat('id-ID', { 
+    style: 'currency', 
+    currency: 'IDR',
+    maximumFractionDigits: 0
+  }).format(totalRevenue);
+
+  const activeOrdersCount = await prisma.order.count({
+    where: {
+      status: {
+        in: ['PENDING', 'PAID']
+      }
+    }
+  });
+
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  
+  const newCustomersCount = await prisma.user.count({
+    where: {
+      role: 'CUSTOMER',
+      createdAt: {
+        gte: thirtyDaysAgo
+      }
+    }
+  });
 
   return (
     <div className="space-y-10 text-gray-900">
@@ -26,10 +64,10 @@ export default async function AdminDashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {[
-          { label: "Total Pendapatan", value: "Rp 0", icon: DollarSign, trend: "+0%" },
-          { label: "Pesanan Aktif", value: "0", icon: ShoppingBag, trend: "0" },
-          { label: "Pelanggan Baru", value: "0", icon: Users, trend: "0" },
-          { label: "Total Produk", value: totalProducts.toString(), icon: Package, trend: "+1" },
+          { label: "Total Pendapatan", value: formattedRevenue, icon: Banknote },
+          { label: "Pesanan Aktif", value: activeOrdersCount.toString(), icon: ShoppingBag },
+          { label: "Pelanggan Baru", value: newCustomersCount.toString(), icon: Users },
+          { label: "Total Produk", value: totalProducts.toString(), icon: Package },
         ].map((stat, i) => {
           const Icon = stat.icon;
           return (
@@ -38,7 +76,6 @@ export default async function AdminDashboard() {
                 <div className="p-3 bg-gray-50 rounded-xl text-black group-hover:bg-black group-hover:text-white transition-colors">
                   <Icon className="w-5 h-5" />
                 </div>
-                <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-md">{stat.trend}</span>
               </div>
               <div>
                 <p className="text-3xl font-bold text-gray-900">{stat.value}</p>

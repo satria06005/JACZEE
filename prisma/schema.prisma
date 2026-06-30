@@ -69,3 +69,14 @@ model OrderItem {
   quantity        Int
   priceAtPurchase Float
 }
+
+model Banner {
+  id        String   @id @default(cuid())
+  location  String   // Kategori lokasi: "hero", "mens", "womens", "feature"
+  title     String?  // Teks judul banner
+  imageUrl  String   // URL gambar banner
+  linkUrl   String?  // Tautan saat tombol di klik
+  linkText  String?  // Teks pada tombol (misal: "Shop Now")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}

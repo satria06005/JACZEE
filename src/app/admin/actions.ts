@@ -62,7 +62,7 @@ export async function createProduct(formData: FormData) {
 
   revalidatePath("/admin/products");
   revalidatePath("/");
-  redirect("/admin/products");
+  return { success: true };
 }
 
 export async function updateProduct(id: string, formData: FormData) {
@@ -126,7 +126,7 @@ export async function updateProduct(id: string, formData: FormData) {
   revalidatePath("/admin/products");
   revalidatePath("/");
   revalidatePath(`/shop/${categoryId}/${id}`);
-  redirect("/admin/products");
+  return { success: true };
 }
 
 export async function deleteProduct(id: string) {
@@ -136,4 +136,14 @@ export async function deleteProduct(id: string) {
 
   revalidatePath("/admin/products");
   revalidatePath("/");
+}
+
+export async function updateOrderStatus(orderId: string, status: string) {
+  await prisma.order.update({
+    where: { id: orderId },
+    data: { status }
+  });
+  revalidatePath("/admin/orders");
+  revalidatePath(`/admin/orders/${orderId}`);
+  return { success: true };
 }

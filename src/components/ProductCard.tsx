@@ -33,8 +33,8 @@ export default function ProductCard({ product, priority }: { product: Product, p
             className="object-cover object-center group-hover:scale-105 transition-transform duration-700" 
           />
           {product.discountPercent && product.discountPercent > 0 && (
-            <div className="absolute top-2 left-2 md:top-4 md:left-4 bg-red-600 text-white text-[10px] md:text-xs font-bold px-2 py-1 tracking-widest uppercase">
-              Sale -{product.discountPercent}%
+            <div className="absolute top-3 left-3 md:top-4 md:left-4 bg-white/95 backdrop-blur-sm text-black border border-gray-100 text-[9px] md:text-[10px] font-semibold px-3 py-1.5 tracking-[0.2em] uppercase shadow-[0_2px_10px_rgba(0,0,0,0.05)] transition-opacity">
+              SALE -{product.discountPercent}%
             </div>
           )}
         </div>
@@ -57,12 +57,12 @@ export default function ProductCard({ product, priority }: { product: Product, p
       <Link href={product.href} className="text-center group flex flex-col gap-1">
         <h3 className="text-xs tracking-widest uppercase group-hover:underline text-gray-900 line-clamp-1">{product.name}</h3>
         {product.originalPrice ? (
-          <div className="flex items-center justify-center gap-2 text-xs tracking-widest">
-            <span className="text-stone-400 line-through">{product.originalPrice}</span>
-            <span className="text-red-600 font-semibold">{product.price}</span>
+          <div className="flex items-center justify-center gap-3 text-[10px] md:text-xs tracking-widest mt-0.5">
+            <span className="text-gray-400 line-through decoration-gray-300">{product.originalPrice}</span>
+            <span className="text-black font-semibold">{product.price}</span>
           </div>
         ) : (
-          <p className="text-xs tracking-widest text-stone-500">{product.price}</p>
+          <p className="text-[10px] md:text-xs tracking-widest text-gray-500 mt-0.5">{product.price}</p>
         )}
       </Link>
     </div>

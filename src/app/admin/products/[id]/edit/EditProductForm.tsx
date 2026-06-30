@@ -3,6 +3,8 @@
 import { updateProduct } from "../../../actions";
 import { Save } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useToastStore } from "@/store/useToastStore";
 
 type CategoryWithSub = {
   id: string;
@@ -19,6 +21,8 @@ export default function EditProductForm({
 }) {
   const [selectedCategory, setSelectedCategory] = useState(product.categoryId || "");
   const [isPending, setIsPending] = useState(false);
+  const router = useRouter();
+  const { addToast } = useToastStore();
 
   const activeCategory = categories.find(c => c.id === selectedCategory);
 
@@ -28,8 +32,11 @@ export default function EditProductForm({
     const formData = new FormData(e.currentTarget);
     try {
       await updateProduct(product.id, formData);
+      addToast("Produk berhasil diperbarui!", "success");
+      router.push("/admin/products");
     } catch (err) {
       console.error(err);
+      addToast("Gagal memperbarui produk.", "error");
     }
     setIsPending(false);
   };
@@ -46,7 +53,7 @@ export default function EditProductForm({
           name="name" 
           defaultValue={product.name}
           required 
-          className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black text-black"
+          className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all resize-none"
         />
       </div>
 
@@ -105,7 +112,7 @@ export default function EditProductForm({
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black bg-white text-black"
+            className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all text-black cursor-pointer appearance-none"
           >
             <option value="" className="text-black">Pilih Kategori...</option>
             {categories.map((cat) => {
@@ -126,7 +133,7 @@ export default function EditProductForm({
             name="subCategoryId" 
             defaultValue={product.subCategoryId || ""}
             disabled={!selectedCategory || !activeCategory?.subCategories.length}
-            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black bg-white text-black disabled:bg-gray-100 disabled:text-gray-400"
+            className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all text-black cursor-pointer appearance-none disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
           >
             <option value="">Pilih Sub-Kategori...</option>
             {activeCategory?.subCategories.map((sub) => (
@@ -160,7 +167,7 @@ export default function EditProductForm({
           id="imageFile" 
           name="imageFile" 
           accept="image/*"
-          className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800"
+          className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 border-dashed focus:bg-white focus:outline-none focus:ring-2 focus:ring-black transition-all text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800 cursor-pointer"
         />
         <p className="text-xs text-gray-500">Pilih *file* baru jika Anda ingin mengganti gambar di atas.</p>
       </div>
@@ -180,7 +187,7 @@ export default function EditProductForm({
         <button 
           type="submit" 
           disabled={isPending}
-          className="w-full bg-black text-white px-6 py-4 rounded-lg font-bold uppercase tracking-widest text-sm hover:bg-gray-800 transition-colors flex justify-center items-center gap-2 disabled:opacity-50"
+          className="w-full bg-black text-white px-6 py-4 rounded-xl font-bold uppercase tracking-widest text-sm hover:bg-gray-800 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Save className="w-5 h-5" />
           {isPending ? "Menyimpan..." : "Simpan Perubahan"}

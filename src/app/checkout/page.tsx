@@ -1,6 +1,7 @@
 "use client";
 
 import { useCartStore } from "@/store/useCartStore";
+import { useToastStore } from "@/store/useToastStore";
 import { processCheckout } from "@/actions/checkout";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -9,6 +10,7 @@ import { useTransition } from "react";
 
 export default function CheckoutPage() {
   const { items, clearCart } = useCartStore();
+  const showToast = useToastStore((state) => state.addToast);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -28,7 +30,7 @@ export default function CheckoutPage() {
           router.push(`/checkout/success?orderId=${result.orderId}`);
         }
       } catch (error) {
-        alert("Gagal memproses pesanan. Silakan coba lagi.");
+        showToast("Gagal memproses pesanan. Silakan coba lagi.", "error");
         console.error(error);
       }
     });
@@ -69,6 +71,11 @@ export default function CheckoutPage() {
               <div className="space-y-2">
                 <label htmlFor="email" className="text-sm font-semibold text-gray-800 uppercase tracking-wider">Email *</label>
                 <input type="email" id="email" name="email" required className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black text-black bg-white" placeholder="Untuk resi dan konfirmasi" />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="phone" className="text-sm font-semibold text-gray-800 uppercase tracking-wider">Nomor Telepon *</label>
+                <input type="tel" id="phone" name="phone" required className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black text-black bg-white" placeholder="Contoh: 081234567890" />
               </div>
 
               <div className="space-y-2">

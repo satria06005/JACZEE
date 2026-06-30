@@ -1,7 +1,19 @@
+"use client";
+
 import Link from "next/link";
 import FadeIn from "@/components/animations/FadeIn";
+import { useState } from "react";
+import { useToastStore } from "@/store/useToastStore";
 
 export default function CountryPage() {
+  const [selectedCurrency, setSelectedCurrency] = useState<"IDR" | "USD">("IDR");
+  const { addToast } = useToastStore();
+
+  const handleSelect = (currency: "IDR" | "USD") => {
+    setSelectedCurrency(currency);
+    addToast(`Preferensi mata uang telah diubah ke ${currency}`, "info");
+  };
+
   return (
     <div className="min-h-screen bg-white text-black pt-32 pb-24 px-6">
       <div className="max-w-3xl mx-auto">
@@ -16,10 +28,24 @@ export default function CountryPage() {
             </p>
             
             <div className="flex flex-col gap-4 max-w-sm mx-auto">
-              <button className="w-full bg-black text-white px-6 py-4 text-xs tracking-[0.2em] uppercase hover:bg-stone-800 transition-colors">
+              <button 
+                onClick={() => handleSelect("IDR")}
+                className={`w-full px-6 py-4 text-xs tracking-[0.2em] uppercase transition-colors ${
+                  selectedCurrency === "IDR" 
+                    ? "bg-black text-white hover:bg-stone-800" 
+                    : "bg-white text-black border border-black hover:bg-gray-50"
+                }`}
+              >
                 Indonesia (IDR Rp)
               </button>
-              <button className="w-full bg-white text-black border border-black px-6 py-4 text-xs tracking-[0.2em] uppercase hover:bg-gray-50 transition-colors">
+              <button 
+                onClick={() => handleSelect("USD")}
+                className={`w-full px-6 py-4 text-xs tracking-[0.2em] uppercase transition-colors ${
+                  selectedCurrency === "USD" 
+                    ? "bg-black text-white hover:bg-stone-800" 
+                    : "bg-white text-black border border-black hover:bg-gray-50"
+                }`}
+              >
                 International (USD $)
               </button>
             </div>

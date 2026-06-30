@@ -23,13 +23,39 @@ export default async function WomensCategoryPage({
     include: { subCategory: true } as any
   });
 
-  const products = dbProducts.map((p) => ({
-    id: p.id,
-    name: p.name,
-    price: `Rp ${p.price.toLocaleString('id-ID')}`,
-    imageUrl: p.imageUrl,
-    href: `/shop/womens/${p.id}`,
-  }));
+  let targetLocation = "womens_hero";
+  if (subCategory) {
+    targetLocation = `womens_hero_${subCategory}`;
+  }
+
+  let banner = await (prisma as any).banner.findFirst({
+    where: { location: targetLocation, isActive: true },
+    orderBy: { createdAt: 'desc' }
+  });
+
+  if (!banner && subCategory) {
+    banner = await (prisma as any).banner.findFirst({
+      where: { location: "womens_hero", isActive: true },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  const bannerImageUrl = banner?.imageUrl || "https://picsum.photos/seed/womens-banner/1600/600";
+  const bannerTitle = banner?.title || "Keanggunan Feminin";
+
+  const products = dbProducts.map((p) => {
+    const isDiscounted = p.discountPercent && p.discountPercent > 0;
+    const finalPrice = isDiscounted ? p.price * (1 - p.discountPercent / 100) : p.price;
+    return {
+      id: p.id,
+      name: p.name,
+      price: `Rp ${finalPrice.toLocaleString('id-ID')}`,
+      originalPrice: isDiscounted ? `Rp ${p.price.toLocaleString('id-ID')}` : undefined,
+      discountPercent: p.discountPercent,
+      imageUrl: p.imageUrl,
+      href: `/shop/womens/${p.id}`,
+    };
+  });
 
   return (
     <div className="min-h-screen bg-white text-black">
@@ -62,13 +88,13 @@ export default async function WomensCategoryPage({
       {/* Hero Banner */}
       <div className="relative w-full h-[300px] md:h-[400px] mb-16 overflow-hidden bg-stone-900 group">
         <Image 
-          src="https://picsum.photos/seed/womens-banner/1600/600"
-          alt="Koleksi Wanita"
+          src={bannerImageUrl}
+          alt={bannerTitle}
           fill
           className="object-cover opacity-70 group-hover:scale-105 transition-transform duration-1000"
         />
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-6">
-          <h2 className="text-3xl md:text-5xl font-light tracking-widest uppercase mb-4">Elegansi Wanita</h2>
+          <h2 className="text-3xl md:text-5xl font-light tracking-widest uppercase mb-4">{bannerTitle}</h2>
           <p className="max-w-2xl text-xs md:text-sm tracking-widest text-stone-200 leading-relaxed">
             Pancarkan pesona Anda dengan koleksi esensial yang dirancang untuk mempertegas siluet indah dan memancarkan kepercayaan diri.
           </p>
@@ -76,7 +102,10 @@ export default async function WomensCategoryPage({
       </div>
       
       {products.length > 0 ? (
-        <ProductGrid title="Koleksi Wanita" products={products} />
+        <ProductGrid 
+          title={`Koleksi Wanita${subCategory && category?.subCategories ? ` - ${category.subCategories.find((s: any) => s.slug === subCategory)?.name || ''}` : ''}`} 
+          products={products} 
+        />
       ) : (
         <div className="text-center py-24 text-gray-500 uppercase tracking-widest text-sm font-semibold">
           Belum ada produk di kategori ini.

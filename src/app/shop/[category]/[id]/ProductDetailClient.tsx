@@ -14,6 +14,9 @@ export const COLORS = [
 export default function ProductDetailClient({ product }: { product: any }) {
   const [selectedColor, setSelectedColor] = useState<string>(COLORS[0].id);
 
+  const isDiscounted = product.discountPercent && product.discountPercent > 0;
+  const finalPrice = isDiscounted ? product.price * (1 - product.discountPercent / 100) : product.price;
+
   // Generate mock gallery images based on the selected color
   // In a real app, product would have an array of image URLs per color
   const colorIndex = COLORS.findIndex(c => c.id === selectedColor);
@@ -41,6 +44,11 @@ export default function ProductDetailClient({ product }: { product: any }) {
               className="object-cover"
               priority={idx === 0}
             />
+            {idx === 0 && isDiscounted && (
+              <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm text-black border border-gray-100 text-[10px] md:text-xs font-semibold px-4 py-2 tracking-[0.2em] uppercase shadow-[0_2px_10px_rgba(0,0,0,0.05)]">
+                SALE -{product.discountPercent}%
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -50,7 +58,14 @@ export default function ProductDetailClient({ product }: { product: any }) {
         <div className="sticky top-32 flex flex-col h-fit pb-12">
           
           <h1 className="text-2xl font-semibold mb-4">{product.name}</h1>
-          <div className="text-lg text-gray-600 mb-8">Rp {product.price.toLocaleString('id-ID')}</div>
+          {isDiscounted ? (
+            <div className="flex items-center gap-4 mb-8 text-lg tracking-widest">
+              <span className="text-gray-400 line-through decoration-gray-300">Rp {product.price.toLocaleString('id-ID')}</span>
+              <span className="text-black font-semibold">Rp {finalPrice.toLocaleString('id-ID')}</span>
+            </div>
+          ) : (
+            <div className="text-lg text-gray-600 mb-8 tracking-widest">Rp {product.price.toLocaleString('id-ID')}</div>
+          )}
           
           <div className="mb-12">
             <AddToCartButton 

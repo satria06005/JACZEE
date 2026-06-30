@@ -3,6 +3,7 @@
 import { useCartStore } from "@/store/useCartStore";
 import { useState } from "react";
 import { COLORS } from "./ProductDetailClient";
+import SizeGuideModal from "@/components/SizeGuideModal";
 
 const SIZES = ["S", "M", "L", "XL"];
 
@@ -17,6 +18,7 @@ export default function AddToCartButton({
 }) {
   const { addItem } = useCartStore();
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
 
   const handleAddToCart = () => {
     if (!selectedSize || !selectedColor) return;
@@ -25,8 +27,12 @@ export default function AddToCartButton({
     const colorIndex = COLORS.findIndex(c => c.id === selectedColor);
     const colorImg = product.imageUrl.replace('/seed/', `/seed/c${colorIndex}-`);
     
+    const isDiscounted = product.discountPercent && product.discountPercent > 0;
+    const finalPrice = isDiscounted ? product.price * (1 - product.discountPercent / 100) : product.price;
+
     addItem({ 
       ...product, 
+      price: finalPrice,
       productId: product.id, // Keep the original database ID for checkout
       quantity: 1, 
       size: selectedSize,
@@ -69,7 +75,12 @@ export default function AddToCartButton({
       <div>
         <div className="flex items-center justify-between mb-4">
           <span className="text-xs tracking-widest uppercase font-semibold">Ukuran</span>
-          <button className="text-[10px] tracking-widest text-gray-400 hover:text-black uppercase transition-colors underline underline-offset-4">Panduan Ukuran</button>
+          <button 
+            onClick={() => setIsSizeGuideOpen(true)}
+            className="text-[10px] tracking-widest text-gray-400 hover:text-black uppercase transition-colors underline underline-offset-4"
+          >
+            Panduan Ukuran
+          </button>
         </div>
         <div className="grid grid-cols-4 gap-4">
           {SIZES.map((size) => (
@@ -100,6 +111,12 @@ export default function AddToCartButton({
       >
         {isReady ? "Tambah Ke Keranjang" : "Pilih Ukuran"}
       </button>
+
+      {/* Size Guide Modal */}
+      <SizeGuideModal 
+        isOpen={isSizeGuideOpen} 
+        onClose={() => setIsSizeGuideOpen(false)} 
+      />
     </div>
   );
 }
