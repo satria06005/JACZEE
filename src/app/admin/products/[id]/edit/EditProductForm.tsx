@@ -5,6 +5,7 @@ import { Save } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToastStore } from "@/store/useToastStore";
+import { AVAILABLE_COLORS } from "@/lib/constants";
 
 type CategoryWithSub = {
   id: string;
@@ -20,6 +21,7 @@ export default function EditProductForm({
   categories: CategoryWithSub[] 
 }) {
   const [selectedCategory, setSelectedCategory] = useState(product.categoryId || "");
+  const [existingGallery, setExistingGallery] = useState<string[]>(product.galleryUrls || []);
   const [isPending, setIsPending] = useState(false);
   const router = useRouter();
   const { addToast } = useToastStore();
@@ -53,7 +55,7 @@ export default function EditProductForm({
           name="name" 
           defaultValue={product.name}
           required 
-          className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all resize-none"
+          className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all resize-none text-black"
         />
       </div>
 
@@ -143,33 +145,91 @@ export default function EditProductForm({
         </div>
       </div>
 
-      <div className="space-y-4">
-        <label htmlFor="imageFile" className="text-sm font-semibold text-gray-700">Pilih Gambar Baru (Opsional)</label>
+      <div className="space-y-2">
+        <label className="text-sm font-semibold text-gray-700">Pilihan Warna (Opsional)</label>
+        <div className="flex flex-wrap gap-4 pt-2">
+          {AVAILABLE_COLORS.map((color) => {
+            const isChecked = product.colors?.includes(color.id);
+            return (
+              <label key={color.id} className="flex items-center gap-2 cursor-pointer group">
+                <div className="relative flex items-center justify-center">
+                  <input 
+                    type="checkbox" 
+                    name="colors" 
+                    value={color.id}
+                    defaultChecked={isChecked}
+                    className="peer sr-only"
+                  />
+                  <div 
+                    className="w-6 h-6 rounded-full border border-gray-300 peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-black transition-all"
+                    style={{ backgroundColor: color.hex }}
+                  />
+                </div>
+                <span className="text-sm text-gray-700 group-hover:text-black">{color.name}</span>
+              </label>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="space-y-4 border border-gray-200 p-6 rounded-xl">
+        <label htmlFor="imageFile" className="text-sm font-semibold text-gray-700">Gambar Utama Produk (Opsional)</label>
         
         {product.imageUrl && (
           <div className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg">
-            <img src={product.imageUrl} alt="Gambar Lama" className="w-16 h-24 object-cover rounded-md shadow-sm" />
-            <div className="text-xs text-gray-500">
-              <p className="font-semibold text-black mb-1">Gambar Saat Ini</p>
-              <p className="break-all line-clamp-1">{product.imageUrl}</p>
+            <img src={product.imageUrl} alt="Current" className="w-20 h-24 object-cover rounded bg-gray-100" />
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold">Gambar Saat Ini</span>
+              <span className="text-xs text-gray-500 break-all">{product.imageUrl}</span>
             </div>
           </div>
         )}
 
-        <input 
-          type="hidden" 
-          name="imageUrl" 
-          value={product.imageUrl} 
-        />
+        <input type="hidden" name="imageUrl" value={product.imageUrl} />
 
         <input 
           type="file" 
           id="imageFile" 
           name="imageFile" 
           accept="image/*"
-          className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 border-dashed focus:bg-white focus:outline-none focus:ring-2 focus:ring-black transition-all text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800 cursor-pointer"
+          className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 border-dashed focus:bg-white focus:outline-none focus:ring-2 focus:ring-black transition-all text-sm text-black file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800 cursor-pointer"
         />
-        <p className="text-xs text-gray-500">Pilih *file* baru jika Anda ingin mengganti gambar di atas.</p>
+        <p className="text-xs text-gray-500">Rekomendasi ukuran: 600x800 pixel (Rasio 3:4). Pilih file baru jika Anda ingin mengganti gambar utama di atas.</p>
+      </div>
+
+      <div className="space-y-4 border border-gray-200 p-6 rounded-xl">
+        <label htmlFor="galleryFiles" className="text-sm font-semibold text-gray-700">Galeri Produk (Banyak Gambar)</label>
+
+        {existingGallery && existingGallery.length > 0 && (
+          <div className="flex flex-col gap-2 p-4 border border-gray-200 rounded-lg">
+            <span className="text-sm font-semibold">Galeri Saat Ini ({existingGallery.length} Gambar)</span>
+            <div className="flex gap-4 overflow-x-auto pb-2">
+              {existingGallery.map((url: string, idx: number) => (
+                <div key={idx} className="relative shrink-0 group">
+                  <img src={url} alt={`Gallery ${idx+1}`} className="w-16 h-20 object-cover rounded border bg-gray-100" />
+                  <button
+                    type="button"
+                    onClick={() => setExistingGallery(existingGallery.filter(u => u !== url))}
+                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                  >
+                    ✕
+                  </button>
+                  <input type="hidden" name="existingGalleryUrls" value={url} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <input 
+          type="file" 
+          id="galleryFiles" 
+          name="galleryFiles" 
+          accept="image/*"
+          multiple
+          className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 border-dashed focus:bg-white focus:outline-none focus:ring-2 focus:ring-black transition-all text-sm text-black file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800 cursor-pointer"
+        />
+        <p className="text-xs text-gray-500">Pilih beberapa gambar sekaligus. Rekomendasi: 600x800 pixel (Rasio 3:4). **Peringatan:** Mengunggah galeri baru akan menghapus dan mengganti galeri saat ini.</p>
       </div>
 
       <div className="space-y-2">

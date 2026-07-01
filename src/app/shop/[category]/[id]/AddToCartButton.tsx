@@ -2,7 +2,7 @@
 
 import { useCartStore } from "@/store/useCartStore";
 import { useState } from "react";
-import { COLORS } from "./ProductDetailClient";
+
 import SizeGuideModal from "@/components/SizeGuideModal";
 
 const SIZES = ["S", "M", "L", "XL"];
@@ -10,11 +10,13 @@ const SIZES = ["S", "M", "L", "XL"];
 export default function AddToCartButton({ 
   product, 
   selectedColor, 
-  setSelectedColor 
+  setSelectedColor,
+  productColors
 }: { 
   product: any, 
   selectedColor: string, 
-  setSelectedColor: (c: string) => void 
+  setSelectedColor: (c: string) => void,
+  productColors: { id: string, name: string, hex: string }[]
 }) {
   const { addItem } = useCartStore();
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
@@ -23,9 +25,9 @@ export default function AddToCartButton({
   const handleAddToCart = () => {
     if (!selectedSize || !selectedColor) return;
     
-    const colorObj = COLORS.find(c => c.id === selectedColor);
-    const colorIndex = COLORS.findIndex(c => c.id === selectedColor);
-    const colorImg = product.imageUrl.replace('/seed/', `/seed/c${colorIndex}-`);
+    const colorObj = productColors.find(c => c.id === selectedColor);
+    const colorIndex = productColors.findIndex(c => c.id === selectedColor);
+    const colorImg = product.imageUrl.replace('/seed/', `/seed/c${colorIndex >= 0 ? colorIndex : 0}-`);
     
     const isDiscounted = product.discountPercent && product.discountPercent > 0;
     const finalPrice = isDiscounted ? product.price * (1 - product.discountPercent / 100) : product.price;
@@ -42,34 +44,36 @@ export default function AddToCartButton({
     });
   };
 
-  const isReady = selectedSize && selectedColor;
+  const isReady = selectedSize && (productColors.length === 0 || selectedColor);
 
   return (
     <div className="flex flex-col gap-8">
       
       {/* Color Selector */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-xs tracking-widest uppercase font-semibold">
-            Warna {selectedColor && `: ${COLORS.find(c => c.id === selectedColor)?.name}`}
-          </span>
+      {productColors && productColors.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-xs tracking-widest uppercase font-semibold">
+              Warna {selectedColor && `: ${productColors.find(c => c.id === selectedColor)?.name}`}
+            </span>
+          </div>
+          <div className="flex gap-4">
+            {productColors.map((color) => (
+              <button
+                key={color.id}
+                onClick={() => setSelectedColor(color.id)}
+                className={`w-10 h-10 rounded-full border-2 transition-all ${
+                  selectedColor === color.id
+                    ? "border-black scale-110"
+                    : "border-gray-200 hover:border-gray-400"
+                }`}
+                style={{ backgroundColor: color.hex }}
+                title={color.name}
+              />
+            ))}
+          </div>
         </div>
-        <div className="flex gap-4">
-          {COLORS.map((color) => (
-            <button
-              key={color.id}
-              onClick={() => setSelectedColor(color.id)}
-              className={`w-10 h-10 rounded-full border-2 transition-all ${
-                selectedColor === color.id
-                  ? "border-black scale-110"
-                  : "border-gray-200 hover:border-gray-400"
-              }`}
-              style={{ backgroundColor: color.hex }}
-              title={color.name}
-            />
-          ))}
-        </div>
-      </div>
+      )}
 
       {/* Size Selector */}
       <div>

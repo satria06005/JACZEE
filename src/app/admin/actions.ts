@@ -3,8 +3,19 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { writeFile, mkdir } from "fs/promises";
+import { writeFile, mkdir, unlink } from "fs/promises";
 import { join } from "path";
+
+async function deleteFileIfLocal(url: string | null) {
+  if (!url || !url.startsWith('/uploads/')) return;
+  try {
+    const filename = url.replace('/uploads/', '');
+    const path = join(process.cwd(), "public/uploads", filename);
+    await unlink(path);
+  } catch (e) {
+    console.error("Failed to delete old file", e);
+  }
+}
 
 export async function createProduct(formData: FormData) {
   const name = formData.get("name") as string;
@@ -37,6 +48,27 @@ export async function createProduct(formData: FormData) {
     finalImageUrl = `/uploads/${fileName}`;
   }
 
+  const colors = formData.getAll("colors") as string[];
+
+  const galleryFiles = formData.getAll("galleryFiles") as File[];
+  const galleryUrls: string[] = [];
+  
+  if (galleryFiles && galleryFiles.length > 0) {
+    const uploadDir = join(process.cwd(), "public/uploads");
+    try { await mkdir(uploadDir, { recursive: true }); } catch(e) {}
+    
+    for (const file of galleryFiles) {
+      if (file.size > 0) {
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
+        const path = join(uploadDir, fileName);
+        await writeFile(path, buffer);
+        galleryUrls.push(`/uploads/${fileName}`);
+      }
+    }
+  }
+
   const data: any = {
     id,
     name,
@@ -47,14 +79,16 @@ export async function createProduct(formData: FormData) {
     imageUrl: finalImageUrl,
     categoryId,
     subCategoryId: subCategoryId || null,
+    colors,
+    galleryUrls,
   };
 
   try {
-    await prisma.product.create({ data });
+    await prisma.product.create({ data: data as any });
   } catch (err: any) {
     if (err.message && err.message.includes("discountPercent")) {
       delete data.discountPercent;
-      await prisma.product.create({ data });
+      await prisma.product.create({ data: data as any });
     } else {
       throw err;
     }
@@ -78,8 +112,12 @@ export async function updateProduct(id: string, formData: FormData) {
     throw new Error("Data tidak lengkap.");
   }
 
+  const existingProduct = (await prisma.product.findUnique({ where: { id } })) as any;
+
   let finalImageUrl = formData.get("imageUrl") as string; // existing image URL
   if (imageFile && imageFile.size > 0) {
+    if (existingProduct) await deleteFileIfLocal(existingProduct.imageUrl);
+    
     const bytes = await imageFile.arrayBuffer();
     const buffer = Buffer.from(bytes);
     
@@ -94,6 +132,39 @@ export async function updateProduct(id: string, formData: FormData) {
     finalImageUrl = `/uploads/${fileName}`;
   }
 
+  const colors = formData.getAll("colors") as string[];
+
+  const galleryFiles = formData.getAll("galleryFiles") as File[];
+  const existingGalleryUrlsFromForm = formData.getAll("existingGalleryUrls") as string[];
+  
+  // Find which old gallery images were removed by the user
+  if (existingProduct && existingProduct.galleryUrls) {
+    for (const oldUrl of existingProduct.galleryUrls) {
+      if (!existingGalleryUrlsFromForm.includes(oldUrl)) {
+        await deleteFileIfLocal(oldUrl);
+      }
+    }
+  }
+
+  let galleryUrls: string[] = [...existingGalleryUrlsFromForm];
+  
+  const hasNewGallery = galleryFiles.some(f => f.size > 0);
+  if (hasNewGallery) {
+    const uploadDir = join(process.cwd(), "public/uploads");
+    try { await mkdir(uploadDir, { recursive: true }); } catch(e) {}
+    
+    for (const file of galleryFiles) {
+      if (file.size > 0) {
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
+        const path = join(uploadDir, fileName);
+        await writeFile(path, buffer);
+        galleryUrls.push(`/uploads/${fileName}`);
+      }
+    }
+  }
+
   const data: any = {
     name,
     description,
@@ -103,12 +174,14 @@ export async function updateProduct(id: string, formData: FormData) {
     imageUrl: finalImageUrl || `https://picsum.photos/seed/${id}/600/800`,
     categoryId,
     subCategoryId: subCategoryId || null,
+    colors,
+    galleryUrls,
   };
 
   try {
     await prisma.product.update({
       where: { id },
-      data,
+      data: data as any,
     });
   } catch (err: any) {
     // Jika user belum menjalankan `npx prisma db push`, prisma client belum tahu tentang discountPercent
@@ -116,7 +189,7 @@ export async function updateProduct(id: string, formData: FormData) {
       delete data.discountPercent;
       await prisma.product.update({
         where: { id },
-        data,
+        data: data as any,
       });
     } else {
       throw err;
@@ -130,9 +203,20 @@ export async function updateProduct(id: string, formData: FormData) {
 }
 
 export async function deleteProduct(id: string) {
+  const existingProduct = (await prisma.product.findUnique({ where: { id } })) as any;
+  
   await prisma.product.delete({
     where: { id },
   });
+
+  if (existingProduct) {
+    await deleteFileIfLocal(existingProduct.imageUrl);
+    if (existingProduct.galleryUrls) {
+      for (const url of existingProduct.galleryUrls) {
+        await deleteFileIfLocal(url);
+      }
+    }
+  }
 
   revalidatePath("/admin/products");
   revalidatePath("/");

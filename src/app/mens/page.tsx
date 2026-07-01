@@ -25,7 +25,8 @@ export default async function MensCategoryPage({
 
   let targetLocation = "mens_hero";
   if (subCategory) {
-    targetLocation = `mens_hero_${subCategory}`;
+    const suffix = subCategory.split('-')[1] || subCategory;
+    targetLocation = `mens_hero_${suffix}`;
   }
 
   let banner = await (prisma as any).banner.findFirst({

@@ -2,6 +2,19 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { unlink } from "fs/promises";
+import { join } from "path";
+
+async function deleteFileIfLocal(url: string | null) {
+  if (!url || !url.startsWith('/uploads/')) return;
+  try {
+    const filename = url.replace('/uploads/', '');
+    const path = join(process.cwd(), "public/uploads", filename);
+    await unlink(path);
+  } catch (e) {
+    console.error("Failed to delete old file", e);
+  }
+}
 
 export async function createBanner(data: {
   location: string;
@@ -15,7 +28,7 @@ export async function createBanner(data: {
     await prisma.banner.create({
       data,
     });
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     revalidatePath("/admin/banners");
     return { success: true };
   } catch (error) {
@@ -36,11 +49,16 @@ export async function updateBanner(
   }
 ) {
   try {
+    const existingBanner = await prisma.banner.findUnique({ where: { id } });
+    if (existingBanner && existingBanner.imageUrl !== data.imageUrl) {
+      await deleteFileIfLocal(existingBanner.imageUrl);
+    }
+
     await prisma.banner.update({
       where: { id },
       data,
     });
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     revalidatePath("/admin/banners");
     return { success: true };
   } catch (error) {
@@ -51,10 +69,15 @@ export async function updateBanner(
 
 export async function deleteBanner(id: string) {
   try {
+    const existingBanner = await prisma.banner.findUnique({ where: { id } });
+    if (existingBanner) {
+      await deleteFileIfLocal(existingBanner.imageUrl);
+    }
+
     await prisma.banner.delete({
       where: { id },
     });
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     revalidatePath("/admin/banners");
     return { success: true };
   } catch (error) {
@@ -69,7 +92,7 @@ export async function toggleBannerStatus(id: string, isActive: boolean) {
       where: { id },
       data: { isActive },
     });
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     revalidatePath("/admin/banners");
     return { success: true };
   } catch (error) {

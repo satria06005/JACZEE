@@ -38,6 +38,8 @@ model Product {
   id            String       @id @default(cuid())
   name          String
   description   String
+  colors        String[]     @default([])
+  galleryUrls   String[]     @default([])
   price         Float
   stock         Int
   imageUrl      String

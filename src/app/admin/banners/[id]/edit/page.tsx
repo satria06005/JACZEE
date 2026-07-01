@@ -2,9 +2,10 @@ import BannerForm from "../../BannerForm";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 
-export default async function EditBannerPage({ params }: { params: { id: string } }) {
+export default async function EditBannerPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
   const banner = await prisma.banner.findUnique({
-    where: { id: params.id }
+    where: { id: resolvedParams.id }
   });
 
   if (!banner) {

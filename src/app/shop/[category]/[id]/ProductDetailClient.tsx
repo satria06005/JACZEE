@@ -5,29 +5,37 @@ import Accordion from "@/components/Accordion";
 import AddToCartButton from "./AddToCartButton";
 import { useState } from "react";
 
-export const COLORS = [
-  { id: 'hitam', name: 'Hitam', hex: '#1c1c1c' },
-  { id: 'gading', name: 'Gading (Ivory)', hex: '#f4f3ed' },
-  { id: 'coklat', name: 'Coklat Tanah', hex: '#8b7355' },
-];
+import { AVAILABLE_COLORS } from "@/lib/constants";
 
 export default function ProductDetailClient({ product }: { product: any }) {
-  const [selectedColor, setSelectedColor] = useState<string>(COLORS[0].id);
+  // Use product colors if available, otherwise fallback to an empty array
+  const productColors = product.colors && product.colors.length > 0
+    ? AVAILABLE_COLORS.filter(c => product.colors.includes(c.id))
+    : [];
+
+  const [selectedColor, setSelectedColor] = useState<string>(productColors.length > 0 ? productColors[0].id : "");
 
   const isDiscounted = product.discountPercent && product.discountPercent > 0;
   const finalPrice = isDiscounted ? product.price * (1 - product.discountPercent / 100) : product.price;
 
   // Generate mock gallery images based on the selected color
   // In a real app, product would have an array of image URLs per color
-  const colorIndex = COLORS.findIndex(c => c.id === selectedColor);
-  const baseImg = product.imageUrl.replace('/seed/', `/seed/c${colorIndex}-`);
+  const colorIndex = productColors.findIndex(c => c.id === selectedColor);
+  const colorIdxForImg = colorIndex >= 0 ? colorIndex : 0;
+  const baseImg = product.imageUrl.replace('/seed/', `/seed/c${colorIdxForImg}-`);
   
-  const galleryImages = [
-    baseImg,
-    baseImg.replace('/seed/', '/seed/alt1-'),
-    baseImg.replace('/seed/', '/seed/alt2-'),
-    baseImg.replace('/seed/', '/seed/alt3-'),
-  ];
+  let galleryImages = [baseImg];
+  if (product.galleryUrls && product.galleryUrls.length > 0) {
+    galleryImages = [baseImg, ...product.galleryUrls];
+  } else if (product.imageUrl.includes('/seed/')) {
+    // Dummy product fallback
+    galleryImages = [
+      baseImg,
+      baseImg.replace('/seed/', '/seed/alt1-'),
+      baseImg.replace('/seed/', '/seed/alt2-'),
+      baseImg.replace('/seed/', '/seed/alt3-'),
+    ];
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-24 relative">
@@ -72,6 +80,7 @@ export default function ProductDetailClient({ product }: { product: any }) {
               product={product} 
               selectedColor={selectedColor} 
               setSelectedColor={setSelectedColor} 
+              productColors={productColors}
             />
           </div>
           

@@ -5,6 +5,7 @@ import { Save } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToastStore } from "@/store/useToastStore";
+import { AVAILABLE_COLORS } from "@/lib/constants";
 
 type CategoryWithSub = {
   id: string;
@@ -45,7 +46,7 @@ export default function ProductForm({ categories }: { categories: CategoryWithSu
           name="name" 
           required 
           placeholder="Contoh: Essential Oversized Tee"
-          className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all"
+          className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all text-black"
         />
       </div>
 
@@ -64,7 +65,7 @@ export default function ProductForm({ categories }: { categories: CategoryWithSu
               const hiddenInput = document.getElementById("price") as HTMLInputElement;
               if (hiddenInput) hiddenInput.value = rawValue;
             }}
-            className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all"
+            className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all text-black"
           />
           <input type="hidden" id="price" name="price" />
         </div>
@@ -78,7 +79,7 @@ export default function ProductForm({ categories }: { categories: CategoryWithSu
             min="0"
             max="100"
             defaultValue="0"
-            className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all"
+            className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all text-black"
           />
         </div>
 
@@ -90,7 +91,7 @@ export default function ProductForm({ categories }: { categories: CategoryWithSu
             name="stock" 
             min="0"
             defaultValue="10"
-            className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all"
+            className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all text-black"
           />
         </div>
       </div>
@@ -135,15 +136,53 @@ export default function ProductForm({ categories }: { categories: CategoryWithSu
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="imageFile" className="text-sm font-semibold text-gray-700">Pilih Gambar</label>
-        <input 
-          type="file" 
-          id="imageFile" 
-          name="imageFile" 
-          accept="image/*"
-          className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 border-dashed focus:bg-white focus:outline-none focus:ring-2 focus:ring-black transition-all text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800 cursor-pointer"
-        />
-        <p className="text-xs text-gray-500">Abaikan jika ingin menggunakan gambar *dummy* otomatis.</p>
+        <label className="text-sm font-semibold text-gray-700">Pilihan Warna (Opsional)</label>
+        <div className="flex flex-wrap gap-4 pt-2">
+          {AVAILABLE_COLORS.map((color) => (
+            <label key={color.id} className="flex items-center gap-2 cursor-pointer group">
+              <div className="relative flex items-center justify-center">
+                <input 
+                  type="checkbox" 
+                  name="colors" 
+                  value={color.id}
+                  className="peer sr-only"
+                />
+                <div 
+                  className="w-6 h-6 rounded-full border border-gray-300 peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-black transition-all"
+                  style={{ backgroundColor: color.hex }}
+                />
+              </div>
+              <span className="text-sm text-gray-700 group-hover:text-black">{color.name}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <label htmlFor="imageFile" className="text-sm font-semibold text-gray-700">Gambar Utama Produk</label>
+          <input 
+            type="file" 
+            id="imageFile" 
+            name="imageFile" 
+            accept="image/*"
+            className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 border-dashed focus:bg-white focus:outline-none focus:ring-2 focus:ring-black transition-all text-sm text-black file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800 cursor-pointer"
+          />
+          <p className="text-xs text-gray-500">Rekomendasi ukuran: 600x800 pixel (Rasio 3:4). Abaikan jika ingin menggunakan gambar *dummy* otomatis.</p>
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="galleryFiles" className="text-sm font-semibold text-gray-700">Galeri Produk (Banyak Gambar)</label>
+          <input 
+            type="file" 
+            id="galleryFiles" 
+            name="galleryFiles" 
+            accept="image/*"
+            multiple
+            className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 border-dashed focus:bg-white focus:outline-none focus:ring-2 focus:ring-black transition-all text-sm text-black file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800 cursor-pointer"
+          />
+          <p className="text-xs text-gray-500">Pilih beberapa gambar sekaligus untuk ditampilkan sebagai galeri di halaman detail produk. Rekomendasi: 600x800 pixel (Rasio 3:4).</p>
+        </div>
       </div>
 
       <div className="space-y-2">
@@ -153,7 +192,7 @@ export default function ProductForm({ categories }: { categories: CategoryWithSu
           name="description" 
           rows={4}
           placeholder="Tuliskan deskripsi lengkap produk ini..."
-          className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all resize-none"
+          className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all resize-none text-black"
         />
       </div>
 
