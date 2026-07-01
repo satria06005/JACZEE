@@ -4,7 +4,7 @@ import { Package, Plus, Users, Activity, ShoppingBag, Banknote } from "lucide-re
 
 export default async function AdminDashboard() {
   const totalProducts = await prisma.product.count();
-  
+
   const paidOrders = await prisma.order.aggregate({
     _sum: {
       totalAmount: true
@@ -15,10 +15,10 @@ export default async function AdminDashboard() {
       }
     }
   });
-  
+
   const totalRevenue = paidOrders._sum.totalAmount || 0;
-  const formattedRevenue = new Intl.NumberFormat('id-ID', { 
-    style: 'currency', 
+  const formattedRevenue = new Intl.NumberFormat('id-ID', {
+    style: 'currency',
     currency: 'IDR',
     maximumFractionDigits: 0
   }).format(totalRevenue);
@@ -33,7 +33,7 @@ export default async function AdminDashboard() {
 
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  
+
   const newCustomersCount = await prisma.user.count({
     where: {
       role: 'CUSTOMER',
@@ -45,15 +45,15 @@ export default async function AdminDashboard() {
 
   return (
     <div className="space-y-10 text-gray-900">
-      
+
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">Dasbor Eksekutif</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900">Dasboard Eksekutif</h1>
           <p className="text-gray-500 mt-1 text-sm">Pantau performa dan kelola toko JACZEE Anda hari ini.</p>
         </div>
-        <Link 
-          href="/admin/products/new" 
+        <Link
+          href="/admin/products/new"
           className="bg-black text-white px-5 py-2.5 rounded-full text-sm font-medium flex items-center gap-2 hover:bg-gray-800 transition-all shadow-md hover:shadow-lg w-fit"
         >
           <Plus className="w-4 h-4" />
@@ -94,12 +94,12 @@ export default async function AdminDashboard() {
             Dapatkan wawasan mendalam mengenai perilaku pelanggan, tren penjualan, dan prediksi performa produk untuk bulan depan. Fitur analitik canggih eksklusif ini akan segera aktif di akun Anda.
           </p>
         </div>
-        
+
         {/* Background Decorative Element */}
         <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-gradient-to-l from-white/10 to-transparent pointer-events-none" />
         <Activity className="w-48 h-48 text-white/5 absolute -right-10 -bottom-10 pointer-events-none" />
       </div>
-      
+
     </div>
   );
 }
