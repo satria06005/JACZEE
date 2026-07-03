@@ -56,8 +56,9 @@ model Order {
   id          String      @id @default(cuid())
   userId      String
   user        User        @relation(fields: [userId], references: [id])
-  totalAmount Float
-  status      String      @default("PENDING") // PENDING | PAID | SHIPPED
+  totalAmount     Float
+  shippingAddress String?
+  status          String      @default("PENDING") // PENDING | PAID | SHIPPED
   createdAt   DateTime    @default(now())
   orderItems  OrderItem[]
 }

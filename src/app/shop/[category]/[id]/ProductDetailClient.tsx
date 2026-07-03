@@ -10,7 +10,13 @@ import { AVAILABLE_COLORS } from "@/lib/constants";
 export default function ProductDetailClient({ product }: { product: any }) {
   // Use product colors if available, otherwise fallback to an empty array
   const productColors = product.colors && product.colors.length > 0
-    ? AVAILABLE_COLORS.filter(c => product.colors.includes(c.id))
+    ? product.colors.map((c: string) => {
+        if (c.includes('|')) {
+          const [name, hex] = c.split('|');
+          return { id: c, name, hex };
+        }
+        return AVAILABLE_COLORS.find(ac => ac.id === c);
+      }).filter(Boolean)
     : [];
 
   const [selectedColor, setSelectedColor] = useState<string>(productColors.length > 0 ? productColors[0].id : "");
@@ -20,7 +26,7 @@ export default function ProductDetailClient({ product }: { product: any }) {
 
   // Generate mock gallery images based on the selected color
   // In a real app, product would have an array of image URLs per color
-  const colorIndex = productColors.findIndex(c => c.id === selectedColor);
+  const colorIndex = productColors.findIndex((c: any) => c.id === selectedColor);
   const colorIdxForImg = colorIndex >= 0 ? colorIndex : 0;
   const baseImg = product.imageUrl.replace('/seed/', `/seed/c${colorIdxForImg}-`);
   

@@ -6,13 +6,53 @@ import { processCheckout } from "@/actions/checkout";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { useTransition } from "react";
+import { useTransition, useState, useEffect } from "react";
 
 export default function CheckoutPage() {
   const { items, clearCart } = useCartStore();
   const showToast = useToastStore((state) => state.addToast);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+
+  const [provinces, setProvinces] = useState<{id: string, name: string}[]>([]);
+  const [cities, setCities] = useState<{id: string, name: string}[]>([]);
+  const [districts, setDistricts] = useState<{id: string, name: string}[]>([]);
+  
+  const [selectedProvince, setSelectedProvince] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+
+  useEffect(() => {
+    fetch("https://kanglerian.github.io/api-wilayah-indonesia/api/provinces.json")
+      .then(res => res.json())
+      .then(data => setProvinces(data))
+      .catch(err => console.error(err));
+  }, []);
+
+  useEffect(() => {
+    if (!selectedProvince) {
+      setCities([]);
+      setSelectedCity("");
+      return;
+    }
+    fetch(`https://kanglerian.github.io/api-wilayah-indonesia/api/regencies/${selectedProvince}.json`)
+      .then(res => res.json())
+      .then(data => setCities(data))
+      .catch(err => console.error(err));
+  }, [selectedProvince]);
+
+  useEffect(() => {
+    if (!selectedCity) {
+      setDistricts([]);
+      setSelectedDistrict("");
+      return;
+    }
+    fetch(`https://kanglerian.github.io/api-wilayah-indonesia/api/districts/${selectedCity}.json`)
+      .then(res => res.json())
+      .then(data => setDistricts(data))
+      .catch(err => console.error(err));
+  }, [selectedCity]);
+
 
   const totalAmount = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -76,6 +116,39 @@ export default function CheckoutPage() {
               <div className="space-y-2">
                 <label htmlFor="phone" className="text-sm font-semibold text-gray-800 uppercase tracking-wider">Nomor Telepon *</label>
                 <input type="tel" id="phone" name="phone" required className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black text-black bg-white" placeholder="Contoh: 081234567890" />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="province" className="text-sm font-semibold text-gray-800 uppercase tracking-wider">Provinsi *</label>
+                <select id="province" name="province" required value={selectedProvince} onChange={(e) => setSelectedProvince(e.target.value)} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black text-black bg-white appearance-none cursor-pointer">
+                  <option value="">Pilih Provinsi...</option>
+                  {provinces.map(p => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+                <input type="hidden" name="provinceName" value={provinces.find(p => p.id === selectedProvince)?.name || ""} />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="city" className="text-sm font-semibold text-gray-800 uppercase tracking-wider">Kota/Kabupaten *</label>
+                <select id="city" name="city" required value={selectedCity} onChange={(e) => setSelectedCity(e.target.value)} disabled={!selectedProvince} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black text-black bg-white appearance-none cursor-pointer disabled:bg-gray-100 disabled:cursor-not-allowed">
+                  <option value="">Pilih Kota/Kabupaten...</option>
+                  {cities.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+                <input type="hidden" name="cityName" value={cities.find(c => c.id === selectedCity)?.name || ""} />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="district" className="text-sm font-semibold text-gray-800 uppercase tracking-wider">Kecamatan *</label>
+                <select id="district" name="district" required value={selectedDistrict} onChange={(e) => setSelectedDistrict(e.target.value)} disabled={!selectedCity} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black text-black bg-white appearance-none cursor-pointer disabled:bg-gray-100 disabled:cursor-not-allowed">
+                  <option value="">Pilih Kecamatan...</option>
+                  {districts.map(d => (
+                    <option key={d.id} value={d.id}>{d.name}</option>
+                  ))}
+                </select>
+                <input type="hidden" name="districtName" value={districts.find(d => d.id === selectedDistrict)?.name || ""} />
               </div>
 
               <div className="space-y-2">

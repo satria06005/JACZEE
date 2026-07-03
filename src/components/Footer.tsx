@@ -29,7 +29,7 @@ export default function Footer() {
           <span>© 2026 JACZEE. Seluruh Hak Cipta Dilindungi.</span>
           <span className="flex gap-4">
             <Link href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Instagram</Link>
-            <Link href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Twitter</Link>
+            <Link href="https://wa.me/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Whatsapp</Link>
           </span>
         </div>
 

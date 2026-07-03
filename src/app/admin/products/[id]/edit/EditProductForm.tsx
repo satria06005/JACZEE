@@ -23,6 +23,18 @@ export default function EditProductForm({
   const [selectedCategory, setSelectedCategory] = useState(product.categoryId || "");
   const [existingGallery, setExistingGallery] = useState<string[]>(product.galleryUrls || []);
   const [isPending, setIsPending] = useState(false);
+  
+  const initialCustomColors = (product.colors || [])
+    .filter((c: string) => c.includes('|'))
+    .map((c: string) => {
+      const [name, hex] = c.split('|');
+      return { name, hex };
+    });
+    
+  const [customColors, setCustomColors] = useState<{name: string, hex: string}[]>(initialCustomColors);
+  const [newColorName, setNewColorName] = useState("");
+  const [newColorHex, setNewColorHex] = useState("#000000");
+  
   const router = useRouter();
   const { addToast } = useToastStore();
 
@@ -169,6 +181,65 @@ export default function EditProductForm({
               </label>
             );
           })}
+          {customColors.map((color, idx) => {
+            // Check if it's from db or newly added. Both should be checked by default.
+            // If the user unchecks it, it won't be submitted in formData.
+            const value = `${color.name}|${color.hex}`;
+            const isChecked = product.colors?.includes(value) || true; // newly added ones are also checked
+            
+            return (
+              <label key={`custom-${idx}`} className="flex items-center gap-2 cursor-pointer group">
+                <div className="relative flex items-center justify-center">
+                  <input 
+                    type="checkbox" 
+                    name="colors" 
+                    value={value}
+                    defaultChecked={isChecked}
+                    className="peer sr-only"
+                  />
+                  <div 
+                    className="w-6 h-6 rounded-full border border-gray-300 peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-black transition-all"
+                    style={{ backgroundColor: color.hex }}
+                  />
+                </div>
+                <span className="text-sm text-gray-700 group-hover:text-black">{color.name}</span>
+              </label>
+            );
+          })}
+        </div>
+        
+        <div className="mt-4 p-4 border border-gray-200 rounded-lg flex items-end gap-4 bg-gray-50">
+          <div className="space-y-1 flex-1">
+            <label className="text-xs font-semibold text-gray-700">Nama Warna Custom</label>
+            <input 
+              type="text" 
+              value={newColorName}
+              onChange={(e) => setNewColorName(e.target.value)}
+              placeholder="Misal: Pink Terang"
+              className="w-full px-3 py-2 bg-white rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-black text-sm text-black"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-gray-700">Hex</label>
+            <input 
+              type="color" 
+              value={newColorHex}
+              onChange={(e) => setNewColorHex(e.target.value)}
+              className="w-10 h-9 p-0 bg-white rounded-md border border-gray-300 cursor-pointer"
+            />
+          </div>
+          <button 
+            type="button"
+            onClick={() => {
+              if (newColorName.trim()) {
+                setCustomColors([...customColors, { name: newColorName.trim(), hex: newColorHex }]);
+                setNewColorName("");
+              }
+            }}
+            className="px-4 py-2 bg-black text-white text-sm font-semibold rounded-md hover:bg-gray-800 transition-colors h-9"
+          >
+            Tambah
+          </button>
         </div>
       </div>
 
@@ -229,7 +300,7 @@ export default function EditProductForm({
           multiple
           className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 border-dashed focus:bg-white focus:outline-none focus:ring-2 focus:ring-black transition-all text-sm text-black file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800 cursor-pointer"
         />
-        <p className="text-xs text-gray-500">Pilih beberapa gambar sekaligus. Rekomendasi: 600x800 pixel (Rasio 3:4). **Peringatan:** Mengunggah galeri baru akan menghapus dan mengganti galeri saat ini.</p>
+        <p className="text-xs text-gray-500">Pilih beberapa gambar sekaligus. Rekomendasi: 600x800 pixel (Rasio 3:4). Maksimal total ukuran file 8MB. **Peringatan:** Mengunggah galeri baru akan menghapus dan mengganti galeri saat ini.</p>
       </div>
 
       <div className="space-y-2">

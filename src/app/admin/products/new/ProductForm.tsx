@@ -16,6 +16,9 @@ type CategoryWithSub = {
 export default function ProductForm({ categories }: { categories: CategoryWithSub[] }) {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [isPending, setIsPending] = useState(false);
+  const [customColors, setCustomColors] = useState<{name: string, hex: string}[]>([]);
+  const [newColorName, setNewColorName] = useState("");
+  const [newColorHex, setNewColorHex] = useState("#000000");
   const router = useRouter();
   const { addToast } = useToastStore();
 
@@ -155,6 +158,58 @@ export default function ProductForm({ categories }: { categories: CategoryWithSu
               <span className="text-sm text-gray-700 group-hover:text-black">{color.name}</span>
             </label>
           ))}
+          {customColors.map((color, idx) => (
+            <label key={`custom-${idx}`} className="flex items-center gap-2 cursor-pointer group">
+              <div className="relative flex items-center justify-center">
+                <input 
+                  type="checkbox" 
+                  name="colors" 
+                  value={`${color.name}|${color.hex}`}
+                  defaultChecked
+                  className="peer sr-only"
+                />
+                <div 
+                  className="w-6 h-6 rounded-full border border-gray-300 peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-black transition-all"
+                  style={{ backgroundColor: color.hex }}
+                />
+              </div>
+              <span className="text-sm text-gray-700 group-hover:text-black">{color.name}</span>
+            </label>
+          ))}
+        </div>
+        
+        <div className="mt-4 p-4 border border-gray-200 rounded-lg flex items-end gap-4 bg-gray-50">
+          <div className="space-y-1 flex-1">
+            <label className="text-xs font-semibold text-gray-700">Nama Warna Custom</label>
+            <input 
+              type="text" 
+              value={newColorName}
+              onChange={(e) => setNewColorName(e.target.value)}
+              placeholder="Misal: Pink Terang"
+              className="w-full px-3 py-2 bg-white rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-black text-sm text-black"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-gray-700">Hex</label>
+            <input 
+              type="color" 
+              value={newColorHex}
+              onChange={(e) => setNewColorHex(e.target.value)}
+              className="w-10 h-9 p-0 bg-white rounded-md border border-gray-300 cursor-pointer"
+            />
+          </div>
+          <button 
+            type="button"
+            onClick={() => {
+              if (newColorName.trim()) {
+                setCustomColors([...customColors, { name: newColorName.trim(), hex: newColorHex }]);
+                setNewColorName("");
+              }
+            }}
+            className="px-4 py-2 bg-black text-white text-sm font-semibold rounded-md hover:bg-gray-800 transition-colors h-9"
+          >
+            Tambah
+          </button>
         </div>
       </div>
 
@@ -181,7 +236,7 @@ export default function ProductForm({ categories }: { categories: CategoryWithSu
             multiple
             className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 border-dashed focus:bg-white focus:outline-none focus:ring-2 focus:ring-black transition-all text-sm text-black file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800 cursor-pointer"
           />
-          <p className="text-xs text-gray-500">Pilih beberapa gambar sekaligus untuk ditampilkan sebagai galeri di halaman detail produk. Rekomendasi: 600x800 pixel (Rasio 3:4).</p>
+          <p className="text-xs text-gray-500">Pilih beberapa gambar sekaligus untuk ditampilkan sebagai galeri di halaman detail produk. Rekomendasi: 600x800 pixel (Rasio 3:4). Maksimal total ukuran file 8MB.</p>
         </div>
       </div>
 
