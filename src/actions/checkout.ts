@@ -40,8 +40,27 @@ export async function processCheckout(formData: FormData) {
   // Format the full shipping address combining the specific address and BPS data
   const fullShippingAddress = `${address}, Kec. ${districtName}, ${cityName}, Provinsi ${provinceName}`;
 
-  const items = JSON.parse(itemsJson);
-  const totalAmount = parseFloat(totalAmountStr);
+  const parsedItems = JSON.parse(itemsJson);
+  let totalAmountFromFrontend = parseFloat(totalAmountStr);
+
+  // SECURITY: Ambil harga asli dari database, JANGAN percaya harga dari frontend!
+  // Ini mencegah "Price Manipulation Attack" di mana hacker mengubah harga di browser.
+  const items = await Promise.all(
+    parsedItems.map(async (item: any) => {
+      const realProductId = item.productId || item.id.split('-')[0];
+      const product = await prisma.product.findUnique({ where: { id: realProductId } });
+      
+      if (!product) throw new Error(`Produk tidak ditemukan: ${item.name}`);
+      
+      return {
+        ...item,
+        productId: realProductId,
+        // Ganti harga dari frontend dengan harga valid dari database
+        price: product.price,
+        name: product.name,
+      };
+    })
+  );
 
   // Buat akun tamu (guest) secara otomatis jika email belum terdaftar
   const user = await prisma.user.upsert({
@@ -56,6 +75,16 @@ export async function processCheckout(formData: FormData) {
   });
 
   const structuredOrderId = generateOrderNumber();
+  
+  // Hitung ulang subtotal berdasarkan harga asli database
+  const realSubtotal = items.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0);
+  
+  // Hitung ongkir berdasarkan selisih total frontend dan subtotal frontend (untuk sementara)
+  const frontendSubtotal = parsedItems.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0);
+  const shippingFee = Math.max(0, totalAmountFromFrontend - frontendSubtotal);
+  
+  // Total bayar = Harga Asli Database + Ongkos Kirim Asli
+  const totalAmount = realSubtotal + shippingFee;
 
   // Buat Pesanan
   const order = await prisma.order.create({
@@ -67,8 +96,7 @@ export async function processCheckout(formData: FormData) {
       status: "PENDING",
       orderItems: {
         create: items.map((item: any) => ({
-          // We must use the original productId we injected, fallback to split for legacy cart items
-          productId: item.productId || item.id.split('-')[0], 
+          productId: item.productId, 
           quantity: item.quantity,
           priceAtPurchase: item.price,
         })),
@@ -78,8 +106,7 @@ export async function processCheckout(formData: FormData) {
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
-  const subtotal = items.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0);
-  const shippingFee = totalAmount - subtotal;
+
 
   const stripeLineItems = items.map((item: any) => ({
     price_data: {
