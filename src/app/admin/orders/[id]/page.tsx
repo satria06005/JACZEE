@@ -112,7 +112,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
             </div>
             <div className="flex justify-between text-[11px] font-bold">
               <span>Metode Bayar:</span>
-              <span>QRIS</span>
+              <span>{(order as any).paymentMethod || 'STRIPE CHECKOUT'}</span>
             </div>
             
             <div className="flex justify-between items-center text-[11px] font-bold pt-1">

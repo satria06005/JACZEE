@@ -54,6 +54,7 @@ export default async function MensCategoryPage({
       originalPrice: isDiscounted ? `Rp ${p.price.toLocaleString('id-ID')}` : undefined,
       discountPercent: p.discountPercent,
       imageUrl: p.imageUrl,
+      galleryUrls: p.galleryUrls,
       href: `/shop/mens/${p.id}`,
     };
   });

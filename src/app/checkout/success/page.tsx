@@ -53,6 +53,14 @@ export default async function CheckoutSuccessPage({
             <ShoppingBag className="w-4 h-4" />
             Lacak Pesanan
           </Link>
+          {orderId && (
+            <Link 
+              href={`/track-order?orderId=${orderId}`}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-black text-white border border-black px-10 py-5 font-bold uppercase tracking-[0.2em] text-xs hover:bg-stone-800 transition-colors"
+            >
+              Lacak Status Pengiriman
+            </Link>
+          )}
           <Link 
             href="/shop" 
             className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-black text-white border border-black px-10 py-5 font-bold uppercase tracking-[0.2em] text-xs hover:bg-stone-800 transition-colors group"

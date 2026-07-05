@@ -52,8 +52,9 @@ export default async function WomensCategoryPage({
       name: p.name,
       price: `Rp ${finalPrice.toLocaleString('id-ID')}`,
       originalPrice: isDiscounted ? `Rp ${p.price.toLocaleString('id-ID')}` : undefined,
-      discountPercent: p.discountPercent,
+      discountPercent: isDiscounted ? p.discountPercent : undefined,
       imageUrl: p.imageUrl,
+      galleryUrls: p.galleryUrls,
       href: `/shop/womens/${p.id}`,
     };
   });

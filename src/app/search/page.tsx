@@ -61,6 +61,7 @@ export default async function SearchPage({
     name: p.name,
     price: `Rp ${p.price.toLocaleString('id-ID')}`,
     imageUrl: p.imageUrl,
+    galleryUrls: p.galleryUrls,
     href: `/shop/${p.category.slug}/${p.id}`,
   }));
 
@@ -114,6 +115,7 @@ export default async function SearchPage({
                   name: p.name,
                   price: `Rp ${p.price.toLocaleString('id-ID')}`,
                   imageUrl: p.imageUrl,
+                  galleryUrls: p.galleryUrls,
                   href: `/shop/${p.category.slug}/${p.id}`,
                 }));
 

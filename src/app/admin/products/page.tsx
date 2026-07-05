@@ -5,9 +5,10 @@ import { Plus, Edit } from "lucide-react";
 import DeleteProductButton from "./DeleteProductButton";
 
 import SearchProduct from "./SearchProduct";
+import FilterProduct from "./FilterProduct";
 
-export default async function AdminProductsPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
-  const { q } = await searchParams;
+export default async function AdminProductsPage({ searchParams }: { searchParams: Promise<{ q?: string; categoryId?: string; subCategoryId?: string }> }) {
+  const { q, categoryId, subCategoryId } = await searchParams;
 
   const qLower = q?.toLowerCase() || '';
   const matchedCategories: string[] = [];
@@ -17,22 +18,30 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
   if (qLower && "aksesoris".includes(qLower)) matchedCategories.push("Accessories");
 
   const products = await prisma.product.findMany({
-    where: q ? {
-      OR: [
-        { name: { contains: q, mode: 'insensitive' } },
-        { subCategory: { name: { contains: q, mode: 'insensitive' } } },
-        ...(matchedCategories.length > 0 ? [{ category: { name: { in: matchedCategories } } }] : [])
-      ]
-    } : undefined,
+    where: {
+      ...(q ? {
+        OR: [
+          { name: { contains: q, mode: 'insensitive' } },
+          { subCategory: { name: { contains: q, mode: 'insensitive' } } },
+          ...(matchedCategories.length > 0 ? [{ category: { name: { in: matchedCategories } } }] : [])
+        ]
+      } : {}),
+      ...(categoryId ? { categoryId } : {}),
+      ...(subCategoryId ? { subCategoryId } : {}),
+    },
     include: { category: true, subCategory: true },
     orderBy: { createdAt: 'desc' },
   });
 
+  const categories = await prisma.category.findMany();
+  const subCategories = await prisma.subCategory.findMany();
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
         <h1 className="text-2xl font-bold">Manajemen Produk</h1>
-        <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row items-center gap-4 w-full xl:w-auto">
+          <FilterProduct categories={categories} subCategories={subCategories} />
           <SearchProduct />
           <Link 
             href="/admin/products/new" 

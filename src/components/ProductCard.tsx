@@ -17,7 +17,11 @@ export default function ProductCard({ product, priority }: { product: Product, p
   let currentImage = product.imageUrl;
   if (selectedColor) {
     const colorIndex = COLORS.findIndex(c => c.id === selectedColor);
-    currentImage = product.imageUrl.replace('/seed/', `/seed/c${colorIndex}-`);
+    if (product.galleryUrls && product.galleryUrls[colorIndex]) {
+      currentImage = product.galleryUrls[colorIndex];
+    } else {
+      currentImage = product.imageUrl.replace('/seed/', `/seed/c${colorIndex}-`);
+    }
   }
 
   return (
@@ -41,7 +45,7 @@ export default function ProductCard({ product, priority }: { product: Product, p
       </Link>
       
       {/* Color Swatches */}
-      <div className="flex justify-center gap-2 mb-3 mt-1">
+      <div className="flex justify-center gap-2 mb-3 mt-1" onMouseLeave={() => setSelectedColor(null)}>
         {COLORS.map((color) => (
           <button
             key={color.id}
