@@ -5,22 +5,36 @@ import Link from "next/link";
 import { useState } from "react";
 import type { Product } from "./ProductGrid";
 
-export const COLORS = [
-  { id: 'hitam', name: 'Hitam', hex: '#1c1c1c' },
-  { id: 'gading', name: 'Gading (Ivory)', hex: '#f4f3ed' },
-  { id: 'coklat', name: 'Coklat Tanah', hex: '#8b7355' },
-];
+import { AVAILABLE_COLORS } from "@/lib/constants";
 
 export default function ProductCard({ product, priority }: { product: Product, priority: boolean }) {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
 
+  const productColors = (product.colors && product.colors.length > 0)
+    ? product.colors.map((c: string, index: number) => {
+        if (!c) return null;
+        if (c.includes('|')) {
+          const [name, hex] = c.split('|');
+          return { id: c, name, hex, originalIndex: index };
+        }
+        const found = AVAILABLE_COLORS.find(ac => ac.id === c);
+        if (found) return { ...found, originalIndex: index };
+        return null;
+      }).filter(Boolean) as { id: string, name: string, hex: string, originalIndex: number }[]
+    : [];
+
   let currentImage = product.imageUrl;
   if (selectedColor) {
-    const colorIndex = COLORS.findIndex(c => c.id === selectedColor);
-    if (product.galleryUrls && product.galleryUrls[colorIndex]) {
-      currentImage = product.galleryUrls[colorIndex];
-    } else {
-      currentImage = product.imageUrl.replace('/seed/', `/seed/c${colorIndex}-`);
+    const colorObj = productColors.find(c => c.id === selectedColor);
+    if (colorObj) {
+      const origIndex = colorObj.originalIndex;
+      if (origIndex === 0) {
+        currentImage = product.imageUrl;
+      } else if (origIndex > 0 && product.galleryUrls && product.galleryUrls[origIndex - 1]) {
+        currentImage = product.galleryUrls[origIndex - 1];
+      } else {
+        currentImage = product.imageUrl.replace('/seed/', `/seed/c${origIndex}-`);
+      }
     }
   }
 
@@ -45,18 +59,20 @@ export default function ProductCard({ product, priority }: { product: Product, p
       </Link>
       
       {/* Color Swatches */}
-      <div className="flex justify-center gap-2 mb-3 mt-1" onMouseLeave={() => setSelectedColor(null)}>
-        {COLORS.map((color) => (
-          <button
-            key={color.id}
-            onMouseEnter={() => setSelectedColor(color.id)}
-            onClick={() => setSelectedColor(color.id)}
-            className={`w-4 h-4 rounded-full border border-gray-300 transition-transform hover:scale-110 ${selectedColor === color.id ? 'ring-1 ring-offset-2 ring-black' : ''}`}
-            style={{ backgroundColor: color.hex }}
-            aria-label={`Lihat warna ${color.name}`}
-          />
-        ))}
-      </div>
+      {productColors.length > 0 && (
+        <div className="flex justify-center gap-2 mb-3 mt-1" onMouseLeave={() => setSelectedColor(null)}>
+          {productColors.map((color) => (
+            <button
+              key={color.id}
+              onMouseEnter={() => setSelectedColor(color.id)}
+              onClick={() => setSelectedColor(color.id)}
+              className={`w-4 h-4 rounded-full border border-gray-300 transition-transform hover:scale-110 ${selectedColor === color.id ? 'ring-1 ring-offset-2 ring-black' : ''}`}
+              style={{ backgroundColor: color.hex }}
+              aria-label={`Lihat warna ${color.name}`}
+            />
+          ))}
+        </div>
+      )}
 
       <Link href={product.href} className="text-center group flex flex-col gap-1">
         <h3 className="text-xs tracking-widest uppercase group-hover:underline text-gray-900 line-clamp-1">{product.name}</h3>

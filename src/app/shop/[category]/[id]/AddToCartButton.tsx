@@ -25,9 +25,17 @@ export default function AddToCartButton({
   const handleAddToCart = () => {
     if (!selectedSize || !selectedColor) return;
     
-    const colorObj = productColors.find(c => c.id === selectedColor);
-    const colorIndex = productColors.findIndex(c => c.id === selectedColor);
-    const colorImg = product.imageUrl.replace('/seed/', `/seed/c${colorIndex >= 0 ? colorIndex : 0}-`);
+    const colorObj = productColors.find(c => c.id === selectedColor) as any;
+    
+    let colorImg = product.imageUrl;
+    if (colorObj) {
+      const origIndex = colorObj.originalIndex;
+      if (origIndex > 0 && product.galleryUrls && product.galleryUrls[origIndex - 1]) {
+        colorImg = product.galleryUrls[origIndex - 1];
+      } else if (product.imageUrl.includes('/seed/')) {
+        colorImg = product.imageUrl.replace('/seed/', `/seed/c${origIndex}-`);
+      }
+    }
     
     const isDiscounted = product.discountPercent && product.discountPercent > 0;
     const finalPrice = isDiscounted ? product.price * (1 - product.discountPercent / 100) : product.price;

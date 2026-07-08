@@ -53,7 +53,9 @@ export async function trackOrder(formData: FormData) {
           name: item.product.name,
           imageUrl: item.product.imageUrl,
           quantity: item.quantity,
-          price: item.priceAtPurchase
+          price: item.priceAtPurchase,
+          originalPrice: item.product.price,
+          discountPercent: item.product.discountPercent
         }))
       }
     };

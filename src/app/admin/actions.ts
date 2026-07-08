@@ -94,7 +94,7 @@ export async function createProduct(formData: FormData) {
     }
   }
 
-  revalidatePath("/admin/products");
+  revalidatePath("/admin/products", "layout");
   revalidatePath("/");
   return { success: true };
 }
@@ -196,13 +196,28 @@ export async function updateProduct(id: string, formData: FormData) {
     }
   }
 
-  revalidatePath("/admin/products");
+  revalidatePath("/admin/products", "layout");
   revalidatePath("/");
   revalidatePath(`/shop/${categoryId}/${id}`);
   return { success: true };
 }
 
 export async function deleteProduct(id: string) {
+  const pendingOrdersCount = await prisma.orderItem.count({
+    where: {
+      productId: id,
+      order: {
+        status: {
+          not: "SHIPPED", // Asumsikan "SHIPPED" berarti pesanan selesai, PENDING/PAID belum selesai
+        },
+      },
+    },
+  });
+
+  if (pendingOrdersCount > 0) {
+    return { error: `Produk ini masih terkait dengan ${pendingOrdersCount} pesanan yang belum diselesaikan (PENDING/PAID). Harap selesaikan pesanan terlebih dahulu sebelum menghapus produk.` };
+  }
+
   const existingProduct = (await prisma.product.findUnique({ where: { id } })) as any;
   
   await prisma.product.delete({
@@ -218,8 +233,9 @@ export async function deleteProduct(id: string) {
     }
   }
 
-  revalidatePath("/admin/products");
+  revalidatePath("/admin/products", "layout");
   revalidatePath("/");
+  return { success: true };
 }
 
 export async function updateOrderStatus(orderId: string, status: string) {

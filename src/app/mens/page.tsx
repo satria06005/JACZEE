@@ -55,6 +55,7 @@ export default async function MensCategoryPage({
       discountPercent: p.discountPercent,
       imageUrl: p.imageUrl,
       galleryUrls: p.galleryUrls,
+      colors: p.colors,
       href: `/shop/mens/${p.id}`,
     };
   });

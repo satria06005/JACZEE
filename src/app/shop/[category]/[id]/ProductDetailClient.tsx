@@ -8,14 +8,16 @@ import { useState } from "react";
 import { AVAILABLE_COLORS } from "@/lib/constants";
 
 export default function ProductDetailClient({ product }: { product: any }) {
-  // Use product colors if available, otherwise fallback to an empty array
   const productColors = product.colors && product.colors.length > 0
-    ? product.colors.map((c: string) => {
+    ? product.colors.map((c: string, index: number) => {
+        if (!c) return null;
         if (c.includes('|')) {
           const [name, hex] = c.split('|');
-          return { id: c, name, hex };
+          return { id: c, name, hex, originalIndex: index };
         }
-        return AVAILABLE_COLORS.find(ac => ac.id === c);
+        const found = AVAILABLE_COLORS.find(ac => ac.id === c);
+        if (found) return { ...found, originalIndex: index };
+        return null;
       }).filter(Boolean)
     : [];
 
@@ -26,8 +28,8 @@ export default function ProductDetailClient({ product }: { product: any }) {
 
   // Generate mock gallery images based on the selected color
   // In a real app, product would have an array of image URLs per color
-  const colorIndex = productColors.findIndex((c: any) => c.id === selectedColor);
-  const colorIdxForImg = colorIndex >= 0 ? colorIndex : 0;
+  const colorObj = productColors.find((c: any) => c.id === selectedColor);
+  const colorIdxForImg = colorObj ? colorObj.originalIndex : 0;
   const baseImg = product.imageUrl.replace('/seed/', `/seed/c${colorIdxForImg}-`);
   
   let galleryImages = [baseImg];
@@ -104,7 +106,7 @@ export default function ProductDetailClient({ product }: { product: any }) {
           </div>
 
           <div className="pt-8 border-t border-gray-100 text-[10px] tracking-widest text-gray-400 space-y-3 font-medium uppercase">
-            <p>GRATIS ONGKOS KIRIM UNTUK PESANAN DI ATAS Rp 5.000.000</p>
+            <p>GRATIS ONGKOS KIRIM UNTUK PESANAN DI ATAS Rp 500.000</p>
             <p>KODE PRODUK: {product.id.split('-')[0].toUpperCase()}</p>
           </div>
 

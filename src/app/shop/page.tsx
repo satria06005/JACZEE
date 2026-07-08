@@ -37,6 +37,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
       discountPercent: isDiscounted ? p.discountPercent : undefined,
       imageUrl: p.imageUrl,
       galleryUrls: p.galleryUrls,
+      colors: p.colors,
       href: `/shop/${p.category.slug}/${p.id}`,
     };
   });

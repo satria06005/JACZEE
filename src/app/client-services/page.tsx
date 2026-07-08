@@ -13,7 +13,7 @@ export default function ClientServicesPage() {
             <section>
               <h2 className="text-sm tracking-widest uppercase font-semibold mb-4">Pengiriman</h2>
               <p className="text-sm text-gray-600 leading-relaxed mb-4">
-                Kami menawarkan pengiriman ke seluruh Indonesia menggunakan layanan kurir tepercaya. Estimasi waktu pengiriman standar adalah 2-5 hari kerja untuk wilayah Jabodetabek, dan 3-7 hari kerja untuk di luar Jabodetabek. Gratis ongkos kirim berlaku untuk semua pesanan di atas Rp 5.000.000.
+                Kami menawarkan pengiriman ke seluruh Indonesia menggunakan layanan kurir tepercaya. Estimasi waktu pengiriman standar adalah 2-5 hari kerja untuk wilayah Jabodetabek, dan 3-7 hari kerja untuk di luar Jabodetabek. Gratis ongkos kirim berlaku untuk semua pesanan di atas Rp 500.000.
               </p>
             </section>
 

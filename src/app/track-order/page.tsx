@@ -19,6 +19,8 @@ type OrderData = {
     imageUrl: string;
     quantity: number;
     price: number;
+    originalPrice?: number;
+    discountPercent?: number;
   }>;
 };
 
@@ -168,20 +170,10 @@ export default function TrackOrderPage() {
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-12 pb-12 border-b border-gray-200">
-                  <h3 className="text-xs font-bold text-black uppercase tracking-[0.2em]">Rincian Pembelian</h3>
-                  <div className="text-right">
-                    <p className="text-[10px] text-gray-500 uppercase tracking-[0.2em] mb-1 flex items-center justify-start sm:justify-end gap-2">
-                      <CreditCard className="w-3 h-3" /> Total Belanja
-                    </p>
-                    <p className="text-lg font-bold text-black tracking-widest">
-                      Rp {order.totalAmount.toLocaleString('id-ID')}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mb-12">
-                  <div className="space-y-8">
+                <div className="mb-12 border-b border-gray-200 pb-12">
+                  <h3 className="text-xs font-bold text-black uppercase tracking-[0.2em] mb-8">Rincian Pembelian</h3>
+                  
+                  <div className="space-y-8 mb-12">
                     {order.items.map((item, idx) => (
                       <div key={idx} className="flex gap-6 items-center">
                         <div className="relative w-24 h-32 bg-gray-100 shrink-0">
@@ -195,10 +187,50 @@ export default function TrackOrderPage() {
                         <div className="flex-1 flex flex-col justify-center">
                           <p className="text-sm md:text-base font-semibold text-black tracking-widest mb-1">{item.name}</p>
                           <p className="text-xs text-gray-500 tracking-[0.2em] uppercase mb-3">Kuantitas: {item.quantity}</p>
-                          <p className="text-sm font-medium text-black tracking-wider">Rp {item.price.toLocaleString('id-ID')}</p>
+                          <div className="flex items-center gap-3">
+                            <p className="text-sm font-medium text-black tracking-wider">Rp {item.price.toLocaleString('id-ID')}</p>
+                            {item.discountPercent ? (
+                              <span className="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 font-bold tracking-widest rounded-sm border border-red-200">
+                                -{item.discountPercent}%
+                              </span>
+                            ) : null}
+                          </div>
+                          {item.discountPercent ? (
+                            <p className="text-[10px] text-gray-400 line-through mt-1">Rp {item.originalPrice?.toLocaleString('id-ID')}</p>
+                          ) : null}
                         </div>
                       </div>
                     ))}
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row justify-end items-start sm:items-end gap-6 pt-8 border-t border-gray-100">
+                    {(() => {
+                      const subtotal = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                      const shippingFee = order.totalAmount - subtotal;
+                      
+                      return (
+                        <div className="w-full sm:w-auto flex flex-col gap-3 sm:min-w-[300px]">
+                          <div className="flex justify-between items-center text-[11px] font-medium text-gray-600 uppercase tracking-wider">
+                            <span>Subtotal Produk</span>
+                            <span className="text-black tracking-widest">Rp {subtotal.toLocaleString('id-ID')}</span>
+                          </div>
+                          <div className="flex justify-between items-center text-[11px] font-medium text-gray-600 uppercase tracking-wider">
+                            <span>Ongkos Kirim</span>
+                            <span className="text-black tracking-widest">
+                              {shippingFee > 0 ? `Rp ${shippingFee.toLocaleString('id-ID')}` : 'Gratis'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center pt-4 border-t border-gray-200 mt-2">
+                            <span className="text-xs font-bold text-black uppercase tracking-[0.2em] flex items-center gap-2">
+                              <CreditCard className="w-3 h-3" /> Total Belanja
+                            </span>
+                            <span className="text-lg font-bold text-black tracking-widest">
+                              Rp {order.totalAmount.toLocaleString('id-ID')}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
 

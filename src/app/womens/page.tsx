@@ -55,6 +55,7 @@ export default async function WomensCategoryPage({
       discountPercent: isDiscounted ? p.discountPercent : undefined,
       imageUrl: p.imageUrl,
       galleryUrls: p.galleryUrls,
+      colors: p.colors,
       href: `/shop/womens/${p.id}`,
     };
   });

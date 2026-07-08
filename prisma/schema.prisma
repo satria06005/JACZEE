@@ -32,6 +32,8 @@ model SubCategory {
   categoryId String
   category   Category  @relation(fields: [categoryId], references: [id])
   products   Product[]
+
+  @@index([categoryId])
 }
 
 model Product {
@@ -50,6 +52,9 @@ model Product {
   discountPercent Int        @default(0)
   createdAt     DateTime     @default(now())
   orderItems    OrderItem[]
+
+  @@index([categoryId])
+  @@index([subCategoryId])
 }
 
 model Order {
@@ -62,16 +67,21 @@ model Order {
   status          String      @default("PENDING") // PENDING | PAID | SHIPPED
   createdAt       DateTime    @default(now())
   orderItems      OrderItem[]
+
+  @@index([userId])
 }
 
 model OrderItem {
   id              String  @id @default(cuid())
   orderId         String
-  order           Order   @relation(fields: [orderId], references: [id])
+  order           Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId       String
-  product         Product @relation(fields: [productId], references: [id])
+  product         Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   quantity        Int
   priceAtPurchase Float
+
+  @@index([orderId])
+  @@index([productId])
 }
 
 model Banner {

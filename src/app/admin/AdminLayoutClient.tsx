@@ -53,7 +53,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 h-full overflow-auto bg-gray-50 print:bg-white p-8 print:p-0">
+      <main className="flex-1 h-full overflow-auto bg-gray-50 print:bg-white p-8 print:p-0 text-black">
         {children}
       </main>
     </div>

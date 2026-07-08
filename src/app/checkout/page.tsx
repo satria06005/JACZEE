@@ -93,6 +93,17 @@ export default function CheckoutPage() {
   }, [selectedCity, courier, items]);
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  // 4. Sync Shipping Fee based on selected service and subtotal
+  useEffect(() => {
+    if (selectedService && shippingCosts.length > 0) {
+      const selected = shippingCosts.find(c => c.service === selectedService);
+      if (selected) {
+        setShippingFee(subtotal >= 500000 ? 0 : selected.cost[0].value);
+      }
+    }
+  }, [subtotal, selectedService, shippingCosts]);
+
   const totalAmount = subtotal + shippingFee;
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -218,17 +229,21 @@ export default function CheckoutPage() {
                         setSelectedService(e.target.value);
                         const selected = shippingCosts.find(c => c.service === e.target.value);
                         if (selected) {
-                          setShippingFee(selected.cost[0].value);
+                          setShippingFee(subtotal >= 500000 ? 0 : selected.cost[0].value);
                         }
                       }} 
                       className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black text-black bg-white appearance-none cursor-pointer"
                     >
                       <option value="">Pilih Layanan...</option>
-                      {shippingCosts.map((c, i) => (
-                        <option key={i} value={c.service}>
-                          {c.service} ({c.description}) - Rp {c.cost[0].value.toLocaleString('id-ID')} ({c.cost[0].etd} Hari)
-                        </option>
-                      ))}
+                      {shippingCosts.map((c, i) => {
+                        const isFreeShipping = subtotal >= 500000;
+                        const costText = isFreeShipping ? "Rp 0 (GRATIS)" : `Rp ${c.cost[0].value.toLocaleString('id-ID')}`;
+                        return (
+                          <option key={i} value={c.service}>
+                            {c.service} ({c.description}) - {costText} ({c.cost[0].etd} Hari)
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
                 ) : courier && (

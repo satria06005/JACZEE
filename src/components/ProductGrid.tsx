@@ -10,6 +10,7 @@ export interface Product {
   discountPercent?: number;
   originalPrice?: string;
   galleryUrls?: string[];
+  colors?: string[];
 }
 
 export default function ProductGrid({ title, products }: { title?: string, products: Product[] }) {

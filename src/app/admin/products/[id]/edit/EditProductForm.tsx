@@ -23,6 +23,8 @@ export default function EditProductForm({
   const [selectedCategory, setSelectedCategory] = useState(product.categoryId || "");
   const [existingGallery, setExistingGallery] = useState<string[]>(product.galleryUrls || []);
   const [isPending, setIsPending] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [newGalleryPreviews, setNewGalleryPreviews] = useState<string[]>([]);
   
   const initialCustomColors = (product.colors || [])
     .filter((c: string) => c.includes('|'))
@@ -47,7 +49,7 @@ export default function EditProductForm({
     try {
       await updateProduct(product.id, formData);
       addToast("Produk berhasil diperbarui!", "success");
-      router.push("/admin/products");
+      router.refresh();
     } catch (err) {
       console.error(err);
       addToast("Gagal memperbarui produk.", "error");
@@ -157,58 +159,10 @@ export default function EditProductForm({
         </div>
       </div>
 
+      {/* Tambah Warna Custom (Opsional) */}
       <div className="space-y-2">
-        <label className="text-sm font-semibold text-gray-700">Pilihan Warna (Opsional)</label>
-        <div className="flex flex-wrap gap-4 pt-2">
-          {AVAILABLE_COLORS.map((color) => {
-            const isChecked = product.colors?.includes(color.id);
-            return (
-              <label key={color.id} className="flex items-center gap-2 cursor-pointer group">
-                <div className="relative flex items-center justify-center">
-                  <input 
-                    type="checkbox" 
-                    name="colors" 
-                    value={color.id}
-                    defaultChecked={isChecked}
-                    className="peer sr-only"
-                  />
-                  <div 
-                    className="w-6 h-6 rounded-full border border-gray-300 peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-black transition-all"
-                    style={{ backgroundColor: color.hex }}
-                  />
-                </div>
-                <span className="text-sm text-gray-700 group-hover:text-black">{color.name}</span>
-              </label>
-            );
-          })}
-          {customColors.map((color, idx) => {
-            // Check if it's from db or newly added. Both should be checked by default.
-            // If the user unchecks it, it won't be submitted in formData.
-            const value = `${color.name}|${color.hex}`;
-            const isChecked = product.colors?.includes(value) || true; // newly added ones are also checked
-            
-            return (
-              <label key={`custom-${idx}`} className="flex items-center gap-2 cursor-pointer group">
-                <div className="relative flex items-center justify-center">
-                  <input 
-                    type="checkbox" 
-                    name="colors" 
-                    value={value}
-                    defaultChecked={isChecked}
-                    className="peer sr-only"
-                  />
-                  <div 
-                    className="w-6 h-6 rounded-full border border-gray-300 peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-black transition-all"
-                    style={{ backgroundColor: color.hex }}
-                  />
-                </div>
-                <span className="text-sm text-gray-700 group-hover:text-black">{color.name}</span>
-              </label>
-            );
-          })}
-        </div>
-        
-        <div className="mt-4 p-4 border border-gray-200 rounded-lg flex items-end gap-4 bg-gray-50">
+        <label className="text-sm font-semibold text-gray-700">Tambah Warna Custom (Untuk Pilihan Dropdown di Bawah)</label>
+        <div className="p-4 border border-gray-200 rounded-lg flex items-end gap-4 bg-gray-50">
           <div className="space-y-1 flex-1">
             <label className="text-xs font-semibold text-gray-700">Nama Warna Custom</label>
             <input 
@@ -248,10 +202,20 @@ export default function EditProductForm({
         
         {product.imageUrl && (
           <div className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg">
-            <img src={product.imageUrl} alt="Current" className="w-20 h-24 object-cover rounded bg-gray-100" />
-            <div className="flex flex-col">
+            <div className="relative group cursor-pointer" onClick={() => setPreviewImage(product.imageUrl)}>
+              <img src={product.imageUrl} alt="Current" className="w-20 h-24 object-cover rounded bg-gray-100 transition-transform group-hover:scale-105" />
+              <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
+                <span className="text-white text-xs drop-shadow-md font-medium">Lihat</span>
+              </div>
+            </div>
+            <div className="flex flex-col w-full max-w-xs">
               <span className="text-sm font-semibold">Gambar Saat Ini</span>
-              <span className="text-xs text-gray-500 break-all">{product.imageUrl}</span>
+              <span className="text-xs text-gray-500 break-all mb-2">{product.imageUrl}</span>
+              <select name="colors" defaultValue={product.colors?.[0] || ""} className="w-full text-xs p-2 border rounded bg-white border-gray-300">
+                <option value="">-- Pilih Warna --</option>
+                {AVAILABLE_COLORS.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                {customColors.map((c, i) => <option key={`custom-${i}`} value={`${c.name}|${c.hex}`}>{c.name}</option>)}
+              </select>
             </div>
           </div>
         )}
@@ -274,18 +238,33 @@ export default function EditProductForm({
         {existingGallery && existingGallery.length > 0 && (
           <div className="flex flex-col gap-2 p-4 border border-gray-200 rounded-lg">
             <span className="text-sm font-semibold">Galeri Saat Ini ({existingGallery.length} Gambar)</span>
-            <div className="flex gap-4 overflow-x-auto pb-2">
+            <div className="flex gap-4 overflow-x-auto pb-2 pt-2 pr-2">
               {existingGallery.map((url: string, idx: number) => (
-                <div key={idx} className="relative shrink-0 group">
-                  <img src={url} alt={`Gallery ${idx+1}`} className="w-16 h-20 object-cover rounded border bg-gray-100" />
-                  <button
-                    type="button"
-                    onClick={() => setExistingGallery(existingGallery.filter(u => u !== url))}
-                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
-                  >
-                    ✕
-                  </button>
-                  <input type="hidden" name="existingGalleryUrls" value={url} />
+                <div key={idx} className="relative shrink-0 flex flex-col items-center gap-2">
+                  <div className="relative group shrink-0">
+                    <div className="cursor-pointer" onClick={() => setPreviewImage(url)}>
+                      <img src={url} alt={`Gallery ${idx+1}`} className="w-20 h-24 object-cover rounded border bg-gray-100 transition-transform group-hover:scale-105" />
+                      <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center pointer-events-none">
+                        <span className="text-white text-[10px] drop-shadow-md font-medium">Lihat</span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExistingGallery(existingGallery.filter(u => u !== url));
+                      }}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition-opacity shadow-sm z-10 hover:bg-red-600"
+                    >
+                      ✕
+                    </button>
+                    <input type="hidden" name="existingGalleryUrls" value={url} />
+                  </div>
+                  <select name="colors" defaultValue={product.colors?.[idx + 1] || ""} className="w-24 text-[10px] p-1 border rounded bg-white border-gray-300">
+                    <option value="">- Warna -</option>
+                    {AVAILABLE_COLORS.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    {customColors.map((c, i) => <option key={`custom-${i}`} value={`${c.name}|${c.hex}`}>{c.name}</option>)}
+                  </select>
                 </div>
               ))}
             </div>
@@ -298,9 +277,38 @@ export default function EditProductForm({
           name="galleryFiles" 
           accept="image/*"
           multiple
+          onChange={(e) => {
+            if (e.target.files) {
+              const files = Array.from(e.target.files);
+              const previews = files.map(file => URL.createObjectURL(file));
+              setNewGalleryPreviews(previews);
+            }
+          }}
           className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 border-dashed focus:bg-white focus:outline-none focus:ring-2 focus:ring-black transition-all text-sm text-black file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800 cursor-pointer"
         />
-        <p className="text-xs text-gray-500">Pilih beberapa gambar sekaligus. Rekomendasi: 600x800 pixel (Rasio 3:4). Maksimal total ukuran file 8MB. **Peringatan:** Mengunggah galeri baru akan menghapus dan mengganti galeri saat ini.</p>
+        {newGalleryPreviews.length > 0 && (
+          <div className="flex flex-col gap-2 p-4 border border-gray-200 rounded-lg bg-blue-50">
+            <span className="text-sm font-semibold text-blue-900">Preview Gambar Baru ({newGalleryPreviews.length} Gambar)</span>
+            <div className="flex gap-4 overflow-x-auto pb-2 pt-2 pr-2">
+              {newGalleryPreviews.map((url, idx) => (
+                <div key={idx} className="relative shrink-0 flex flex-col items-center gap-2">
+                  <div className="relative shrink-0 group cursor-pointer" onClick={() => setPreviewImage(url)}>
+                    <img src={url} alt={`New Gallery ${idx+1}`} className="w-20 h-24 object-cover rounded border bg-white transition-transform group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center pointer-events-none">
+                      <span className="text-white text-[10px] drop-shadow-md font-medium">Lihat</span>
+                    </div>
+                  </div>
+                  <select name="colors" defaultValue="" className="w-24 text-[10px] p-1 border rounded bg-white border-gray-300">
+                    <option value="">- Warna -</option>
+                    {AVAILABLE_COLORS.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    {customColors.map((c, i) => <option key={`custom-${i}`} value={`${c.name}|${c.hex}`}>{c.name}</option>)}
+                  </select>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        <p className="text-xs text-gray-500">Pilih beberapa gambar sekaligus. Rekomendasi: 600x800 pixel (Rasio 3:4). Maksimal total ukuran file 10MB. Jika Anda mengunggah galeri baru, warnanya dapat dipilih pada preview di atas.</p>
       </div>
 
       <div className="space-y-2">
@@ -324,6 +332,30 @@ export default function EditProductForm({
           {isPending ? "Menyimpan..." : "Simpan Perubahan"}
         </button>
       </div>
+
+      {previewImage && (
+        <div 
+          className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm cursor-pointer"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div className="relative max-w-4xl max-h-screen">
+            <img 
+              src={previewImage} 
+              alt="Preview" 
+              className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" 
+            />
+            <button 
+              className="absolute -top-4 -right-4 bg-white text-black rounded-full w-8 h-8 flex items-center justify-center font-bold hover:bg-gray-200 shadow-lg"
+              onClick={(e) => {
+                e.stopPropagation();
+                setPreviewImage(null);
+              }}
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
     </form>
   );
 }

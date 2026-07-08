@@ -14,11 +14,16 @@ export default function DeleteProductButton({ id }: { id: string }) {
   const handleConfirm = () => {
     startTransition(async () => {
       try {
-        await deleteProduct(id);
+        const response = await deleteProduct(id);
+        if (response && response.error) {
+          addToast(response.error, "error");
+          setShowModal(false);
+          return;
+        }
         addToast("Produk berhasil dihapus", "success");
         setShowModal(false);
-      } catch (error) {
-        addToast("Gagal menghapus produk", "error");
+      } catch (error: any) {
+        addToast(error.message || "Gagal menghapus produk", "error");
         setShowModal(false);
       }
     });

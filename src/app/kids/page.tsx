@@ -54,6 +54,7 @@ export default async function KidsCategoryPage({
       discountPercent: p.discountPercent,
       imageUrl: p.imageUrl,
       galleryUrls: p.galleryUrls,
+      colors: p.colors,
       href: `/shop/kids/${p.id}`,
     };
   });
