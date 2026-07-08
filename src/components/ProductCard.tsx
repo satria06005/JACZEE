@@ -75,7 +75,7 @@ export default function ProductCard({ product, priority }: { product: Product, p
       )}
 
       <Link href={product.href} className="text-center group flex flex-col gap-1">
-        <h3 className="text-xs tracking-widest uppercase group-hover:underline text-gray-900 line-clamp-1">{product.name}</h3>
+        <h3 className="text-xs tracking-widest capitalize group-hover:underline text-gray-900 line-clamp-1">{product.name}</h3>
         {product.originalPrice ? (
           <div className="flex items-center justify-center gap-3 text-[10px] md:text-xs tracking-widest mt-0.5">
             <span className="text-gray-400 line-through decoration-gray-300">{product.originalPrice}</span>

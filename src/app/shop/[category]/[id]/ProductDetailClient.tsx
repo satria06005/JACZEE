@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import Accordion from "@/components/Accordion";
 import AddToCartButton from "./AddToCartButton";
 import { useState } from "react";
@@ -73,7 +74,12 @@ export default function ProductDetailClient({ product }: { product: any }) {
       <div className="md:col-span-5 relative">
         <div className="sticky top-32 flex flex-col h-fit pb-12">
           
-          <h1 className="text-2xl font-semibold mb-4">{product.name}</h1>
+          <div className="flex items-center gap-2 text-xs tracking-widest text-gray-500 uppercase mb-4">
+            <Link href="/" className="hover:text-black transition-colors">Home</Link>
+            <span>/</span>
+            <Link href="/shop" className="hover:text-black transition-colors">Shop</Link>
+          </div>
+          <h1 className="text-2xl font-semibold mb-4 capitalize">{product.name}</h1>
           {isDiscounted ? (
             <div className="flex items-center gap-4 mb-8 text-lg tracking-widest">
               <span className="text-gray-400 line-through decoration-gray-300">Rp {product.price.toLocaleString('id-ID')}</span>

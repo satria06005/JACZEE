@@ -79,7 +79,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
                           className="object-cover" 
                         />
                       </div>
-                      <span className="font-medium text-black group-hover:underline decoration-1 underline-offset-4">{product.name}</span>
+                      <span className="font-medium text-black group-hover:underline decoration-1 underline-offset-4 capitalize">{product.name}</span>
                     </Link>
                   </td>
                   <td className="px-6 py-4 text-gray-600">

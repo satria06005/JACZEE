@@ -34,7 +34,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
   return (
     <div className="space-y-6">
       {/* Action Bar (Hidden on Print) */}
-      <div className="flex flex-col sm:flex-row items-center justify-between max-w-lg mx-auto print:hidden mb-8 gap-4 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+      <div className="flex flex-col sm:flex-row items-center justify-between max-w-lg mx-auto print:hidden mb-8 gap-4 bg-white p-4 rounded-xl border border-gray-200 shadow-sm sticky top-0 z-[90]">
         <Link href="/admin/orders" className="flex items-center gap-2 text-gray-500 hover:text-black transition-colors font-semibold text-sm">
           <ArrowLeft className="w-4 h-4" />
           Kembali

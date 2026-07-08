@@ -185,7 +185,7 @@ export default function TrackOrderPage() {
                           />
                         </div>
                         <div className="flex-1 flex flex-col justify-center">
-                          <p className="text-sm md:text-base font-semibold text-black tracking-widest mb-1">{item.name}</p>
+                          <p className="text-sm md:text-base font-semibold text-black tracking-widest mb-1 capitalize">{item.name}</p>
                           <p className="text-xs text-gray-500 tracking-[0.2em] uppercase mb-3">Kuantitas: {item.quantity}</p>
                           <div className="flex items-center gap-3">
                             <p className="text-sm font-medium text-black tracking-wider">Rp {item.price.toLocaleString('id-ID')}</p>
