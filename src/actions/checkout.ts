@@ -106,66 +106,75 @@ export async function processCheckout(formData: FormData) {
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
+  // Konfigurasi Midtrans Snap
+  // @ts-ignore - midtrans-client might not have perfect TS types
+  const midtransClient = require('midtrans-client');
+  const snap = new midtransClient.Snap({
+    isProduction: process.env.MIDTRANS_IS_PRODUCTION === 'true',
+    serverKey: process.env.MIDTRANS_SERVER_KEY,
+    clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY,
+  });
 
+  const transactionDetails = {
+    order_id: order.id,
+    gross_amount: Math.round(totalAmount),
+  };
 
-  // SEMENTARA: Bypass Stripe dan langsung ke halaman sukses.
-  // Midtrans akan diintegrasikan di sini nantinya.
-  /*
-  const stripeLineItems = items.map((item: any) => ({
-    price_data: {
-      currency: "idr",
-      product_data: {
-        name: item.name || "Koleksi JACZEE",
-      },
-      // Stripe menganggap IDR memiliki 2 desimal (sen), jadi harus dikali 100
-      unit_amount: Math.round(item.price * 100), 
+  const customerDetails = {
+    first_name: name,
+    email: email,
+    phone: phone,
+    billing_address: {
+      first_name: name,
+      email: email,
+      phone: phone,
+      address: address,
+      city: cityName,
+      country_code: "IDN"
     },
+    shipping_address: {
+      first_name: name,
+      email: email,
+      phone: phone,
+      address: address,
+      city: cityName,
+      country_code: "IDN"
+    }
+  };
+
+  const itemDetails = items.map((item: any) => ({
+    id: item.productId,
+    price: Math.round(item.price),
     quantity: item.quantity,
+    name: item.name || "Koleksi JACZEE",
   }));
 
   if (shippingFee > 0) {
-    stripeLineItems.push({
-      price_data: {
-        currency: "idr",
-        product_data: {
-          name: "Ongkos Kirim",
-        },
-        unit_amount: Math.round(shippingFee * 100),
-      },
+    itemDetails.push({
+      id: "SHIPPING",
+      price: Math.round(shippingFee),
       quantity: 1,
+      name: "Ongkos Kirim",
     });
   }
 
-  // Trik untuk Proyek Kuliah: Stripe menolak transaksi di bawah $0.50 (sekitar Rp 10.000)
-  if (totalAmount < 10000) {
-    const adminFee = 10000 - totalAmount;
-    stripeLineItems.push({
-      price_data: {
-        currency: "idr",
-        product_data: {
-          name: "Biaya Layanan (Minimum Transaksi)",
-        },
-        unit_amount: Math.round(adminFee * 100),
-      },
-      quantity: 1,
-    });
+  const transactionParams = {
+    transaction_details: transactionDetails,
+    customer_details: customerDetails,
+    item_details: itemDetails,
+    callbacks: {
+      finish: `${baseUrl}/checkout/success?orderId=${order.id}`,
+      error: `${baseUrl}/checkout`,
+      pending: `${baseUrl}/checkout`,
+    }
+  };
+
+  try {
+    const transaction = await snap.createTransaction(transactionParams);
+    // Kembalikan URL Midtrans Snap
+    return { success: true, url: transaction.redirect_url };
+  } catch (error) {
+    console.error("Midtrans Error:", error);
+    throw new Error("Gagal memproses pembayaran dengan Midtrans.");
   }
-
-  // Buat sesi Stripe
-  const session = await stripe.checkout.sessions.create({
-    mode: "payment",
-    success_url: `${baseUrl}/checkout/success?orderId=${order.id}`,
-    cancel_url: `${baseUrl}/checkout`,
-    client_reference_id: order.id,
-    metadata: {
-      orderId: order.id,
-    },
-    line_items: stripeLineItems,
-  });
-
-  return { success: true, url: session.url };
-  */
-
-  // Kembalikan URL Sukses langsung
-  return { success: true, url: `${baseUrl}/checkout/success?orderId=${order.id}` };
 }
