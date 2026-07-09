@@ -143,10 +143,10 @@ export async function processCheckout(formData: FormData) {
   };
 
   const itemDetails = items.map((item: any) => ({
-    id: item.productId,
+    id: item.productId.substring(0, 50),
     price: Math.round(item.price),
     quantity: item.quantity,
-    name: item.name || "Koleksi JACZEE",
+    name: (item.name || "Koleksi JACZEE").substring(0, 50),
   }));
 
   if (shippingFee > 0) {
@@ -158,8 +158,16 @@ export async function processCheckout(formData: FormData) {
     });
   }
 
+  // RE-CALCULATE gross_amount to strictly match item_details sum
+  const exactGrossAmount = itemDetails.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0);
+
+  const finalTransactionDetails = {
+    order_id: order.id,
+    gross_amount: exactGrossAmount,
+  };
+
   const transactionParams = {
-    transaction_details: transactionDetails,
+    transaction_details: finalTransactionDetails,
     customer_details: customerDetails,
     item_details: itemDetails,
     callbacks: {
@@ -171,10 +179,9 @@ export async function processCheckout(formData: FormData) {
 
   try {
     const transaction = await snap.createTransaction(transactionParams);
-    // Kembalikan URL Midtrans Snap
     return { success: true, url: transaction.redirect_url };
-  } catch (error) {
-    console.error("Midtrans Error:", error);
-    throw new Error("Gagal memproses pembayaran dengan Midtrans.");
+  } catch (error: any) {
+    console.error("Midtrans Error Detailed:", error?.ApiResponse || error?.message || error);
+    throw new Error("Gagal memproses pembayaran dengan Midtrans. Mohon coba lagi.");
   }
 }
