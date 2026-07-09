@@ -2,11 +2,11 @@
 
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import Stripe from "stripe";
+// import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2023-10-16" as any,
-});
+// const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+//   apiVersion: "2023-10-16" as any,
+// });
 
 // Generate a structured, elegant order number (e.g., ORD-20260627-4829)
 function generateOrderNumber() {
@@ -108,6 +108,9 @@ export async function processCheckout(formData: FormData) {
 
 
 
+  // SEMENTARA: Bypass Stripe dan langsung ke halaman sukses.
+  // Midtrans akan diintegrasikan di sini nantinya.
+  /*
   const stripeLineItems = items.map((item: any) => ({
     price_data: {
       currency: "idr",
@@ -160,6 +163,9 @@ export async function processCheckout(formData: FormData) {
     line_items: stripeLineItems,
   });
 
-  // Kembalikan URL Stripe Checkout ke frontend
   return { success: true, url: session.url };
+  */
+
+  // Kembalikan URL Sukses langsung
+  return { success: true, url: `${baseUrl}/checkout/success?orderId=${order.id}` };
 }

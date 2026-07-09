@@ -245,7 +245,7 @@ export default function ProductForm({ categories }: { categories: CategoryWithSu
                         <span className="text-white text-[10px] drop-shadow-md font-medium">Lihat</span>
                       </div>
                     </div>
-                    <select name="colors" defaultValue="" className="w-24 text-[10px] p-1 border rounded bg-white border-gray-300">
+                    <select name="colors" defaultValue="" className="w-full min-w-[140px] text-sm p-2 border rounded bg-white border-gray-300">
                       <option value="">- Warna -</option>
                       {AVAILABLE_COLORS.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                       {customColors.map((c, i) => <option key={`custom-${i}`} value={`${c.name}|${c.hex}`}>{c.name}</option>)}
