@@ -14,7 +14,7 @@ export default function Footer() {
         </Link>
         
         {/* Links */}
-        <div className="flex flex-wrap justify-center gap-x-12 gap-y-6 text-xs md:text-sm tracking-widest uppercase font-medium text-stone-400 mb-24">
+        <div className="flex flex-col md:flex-row md:flex-wrap items-center justify-center gap-y-6 md:gap-x-12 text-xs md:text-sm tracking-widest uppercase font-medium text-stone-400 mb-24">
           <Link href="/about" className="hover:text-white transition-colors duration-300">Tentang Kami</Link>
           <Link href="/track-order" className="hover:text-white transition-colors duration-300">Lacak Pesanan</Link>
           <Link href="/country" className="hover:text-white transition-colors duration-300">Indonesia (IDR)</Link>
