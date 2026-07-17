@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, ShoppingBag, LogOut, Image as ImageIcon } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingBag, LogOut, Image as ImageIcon, Users } from "lucide-react";
 
 export default function AdminLayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -12,6 +12,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
     { name: "Banners", href: "/admin/banners", icon: ImageIcon },
     { name: "Produk", href: "/admin/products", icon: Package },
     { name: "Pesanan", href: "/admin/orders", icon: ShoppingBag },
+    { name: "Pengguna", href: "/admin/users", icon: Users },
   ];
 
   return (

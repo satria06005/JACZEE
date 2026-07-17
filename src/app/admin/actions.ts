@@ -247,3 +247,35 @@ export async function updateOrderStatus(orderId: string, status: string) {
   revalidatePath(`/admin/orders/${orderId}`);
   return { success: true };
 }
+
+export async function updateUserRole(userId: string, newRole: string) {
+  await prisma.user.update({
+    where: { id: userId },
+    data: { role: newRole }
+  });
+  revalidatePath("/admin/users");
+  return { success: true };
+}
+
+export async function deleteUser(userId: string) {
+  // First, find and delete all orders belonging to the user to satisfy foreign key constraints
+  const userOrders = await prisma.order.findMany({
+    where: { userId },
+    select: { id: true }
+  });
+
+  for (const order of userOrders) {
+    // orderItems are cascade deleted because of onDelete: Cascade on order relation
+    await prisma.order.delete({
+      where: { id: order.id }
+    });
+  }
+
+  // Now delete the user
+  await prisma.user.delete({
+    where: { id: userId }
+  });
+
+  revalidatePath("/admin/users");
+  return { success: true };
+}

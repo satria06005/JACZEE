@@ -112,7 +112,7 @@ export default function ProductDetailClient({ product }: { product: any }) {
           </div>
 
           <div className="pt-8 border-t border-gray-100 text-[10px] tracking-widest text-gray-400 space-y-3 font-medium uppercase">
-            <p>GRATIS ONGKOS KIRIM UNTUK PESANAN DI ATAS Rp 500.000</p>
+            <p>GRATIS ONGKOS KIRIM UNTUK PESANAN DI ATAS Rp 800.000</p>
             <p>KODE PRODUK: {product.id.split('-')[0].toUpperCase()}</p>
           </div>
 

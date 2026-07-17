@@ -113,3 +113,8 @@ export async function forgotPassword(formData: FormData) {
     return { success: false, error: "Terjadi kesalahan pada server." };
   }
 }
+
+export async function logoutUser() {
+  const cookieStore = await cookies();
+  cookieStore.delete("auth_token");
+}

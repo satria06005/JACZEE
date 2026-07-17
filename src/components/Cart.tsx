@@ -76,18 +76,20 @@ export default function Cart() {
                     
                     <div className="flex items-center justify-between mt-4">
                       {/* Quantity Control */}
-                      <div className="flex items-center border border-gray-200">
+                      <div className="flex items-center justify-between border border-gray-200 w-28">
                         <button 
                           onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                          className="px-2 py-1 hover:bg-gray-50 text-gray-500"
+                          className="p-2 hover:bg-gray-50 text-gray-500 flex-shrink-0"
                           aria-label="Kurangi jumlah"
                         >
                           <Minus className="w-3 h-3" />
                         </button>
-                        <span className="px-4 text-xs font-medium">{item.quantity}</span>
+                        <span className="text-xs font-bold text-black flex-1 text-center block w-full">
+                          {item.quantity > 0 ? item.quantity : 1}
+                        </span>
                         <button 
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="px-2 py-1 hover:bg-gray-50 text-gray-500"
+                          className="p-2 hover:bg-gray-50 text-gray-500 flex-shrink-0"
                           aria-label="Tambah jumlah"
                         >
                           <Plus className="w-3 h-3" />

@@ -99,7 +99,7 @@ export default function CheckoutPage() {
     if (selectedService && shippingCosts.length > 0) {
       const selected = shippingCosts.find(c => c.service === selectedService);
       if (selected) {
-        setShippingFee(subtotal >= 500000 ? 0 : selected.cost[0].value);
+        setShippingFee(subtotal >= 800000 ? 0 : selected.cost[0].value);
       }
     }
   }, [subtotal, selectedService, shippingCosts]);
@@ -108,7 +108,7 @@ export default function CheckoutPage() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (shippingFee === 0 && courier) {
+    if (!selectedService) {
        showToast("Pilih layanan pengiriman terlebih dahulu.", "error");
        return;
     }
@@ -229,14 +229,14 @@ export default function CheckoutPage() {
                         setSelectedService(e.target.value);
                         const selected = shippingCosts.find(c => c.service === e.target.value);
                         if (selected) {
-                          setShippingFee(subtotal >= 500000 ? 0 : selected.cost[0].value);
+                          setShippingFee(subtotal >= 800000 ? 0 : selected.cost[0].value);
                         }
                       }} 
                       className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black text-black bg-white appearance-none cursor-pointer"
                     >
                       <option value="">Pilih Layanan...</option>
                       {shippingCosts.map((c, i) => {
-                        const isFreeShipping = subtotal >= 500000;
+                        const isFreeShipping = subtotal >= 800000;
                         const costText = isFreeShipping ? "Rp 0 (GRATIS)" : `Rp ${c.cost[0].value.toLocaleString('id-ID')}`;
                         return (
                           <option key={i} value={c.service}>
@@ -254,7 +254,7 @@ export default function CheckoutPage() {
 
             <button 
               type="submit"
-              disabled={isPending || (!shippingFee && courier !== "")}
+              disabled={isPending || !selectedService}
               className="w-full bg-black text-white px-6 py-5 rounded-lg font-bold uppercase tracking-widest text-sm hover:bg-gray-800 transition-colors disabled:opacity-50 mt-4"
             >
               {isPending ? "MEMPROSES PESANAN..." : "SELESAIKAN PESANAN SEKARANG"}
