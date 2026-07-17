@@ -9,7 +9,7 @@ export default function MobileMenu() {
 
   return (
     <>
-      <button className="md:hidden" onClick={() => setIsOpen(true)}>
+      <button className="md:hidden" onClick={() => setIsOpen(true)} aria-label="Buka Menu">
         <Menu className="w-5 h-5" />
       </button>
 
@@ -21,7 +21,7 @@ export default function MobileMenu() {
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <span className="font-bold tracking-[0.2em] text-xl">JACZEE</span>
-          <button onClick={() => setIsOpen(false)} className="hover:opacity-50 transition-opacity">
+          <button onClick={() => setIsOpen(false)} className="hover:opacity-50 transition-opacity" aria-label="Tutup Menu">
             <X className="w-6 h-6" />
           </button>
         </div>

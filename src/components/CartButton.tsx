@@ -16,7 +16,7 @@ export default function CartButton() {
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <button onClick={openCart} className="flex items-center gap-2 hover:opacity-70 transition-opacity">
+    <button onClick={openCart} className="flex items-center gap-2 hover:opacity-70 transition-opacity" aria-label="Buka Keranjang">
       <span className="hidden md:inline">KERANJANG ({mounted ? itemCount : 0})</span>
       <div className="md:hidden relative">
         <ShoppingBag className="w-5 h-5" />
