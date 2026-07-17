@@ -45,10 +45,10 @@ export default async function Home() {
   });
 
   const featureBanner = getBanner('feature', {
-    title: "The Cinder III Basketball",
-    imageUrl: "https://picsum.photos/seed/cinder/2000/1000",
-    linkUrl: "/shop/cinder-iii",
-    linkText: "Shop"
+    title: "The Signature Knitwear",
+    imageUrl: "https://picsum.photos/seed/knitwear/2000/1000",
+    linkUrl: "/shop",
+    linkText: "Beli Sekarang"
   });
 
   return (
@@ -152,7 +152,7 @@ export default async function Home() {
           </FadeIn>
           <FadeIn direction="up" delay={0.2}>
             <p className="text-stone-300 text-center max-w-2xl mx-auto text-sm md:text-base tracking-widest uppercase font-light mb-12 leading-relaxed">
-              Dirancang untuk presisi. Dibuat bagi mereka yang tak kenal lelah. Rasakan genggaman dan kontrol sempurna di lapangan mana pun.
+              Dirajut dengan presisi. Dibuat bagi Anda yang mengutamakan kenyamanan. Rasakan kelembutan dan kehangatan sempurna di setiap kesempatan.
             </p>
           </FadeIn>
           <FadeIn direction="up" delay={0.4}>
@@ -171,34 +171,34 @@ export default async function Home() {
         <div className="max-w-[1200px] mx-auto">
           <FadeIn direction="up">
             <h3 className="text-center text-xs tracking-[0.2em] uppercase mb-16 text-stone-600">
-              Mengapa Memilih The Cinder III
+              Mengapa Memilih Koleksi Rajut Kami
             </h3>
           </FadeIn>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
             <FadeIn direction="up" delay={0.1}>
               <div className="flex flex-col items-center text-center">
                 <ShieldCheck className="w-8 h-8 text-stone-800 mb-6 stroke-[1.5]" />
-                <h4 className="text-sm tracking-widest uppercase mb-4">Kulit Premium</h4>
+                <h4 className="text-sm tracking-widest uppercase mb-4">Bahan Rajut Premium</h4>
                 <p className="text-stone-600 text-sm leading-relaxed max-w-xs">
-                  Dibuat dengan kulit komposit premium untuk daya tahan tak tertandingi dan nuansa mewah yang bertahan dari musim ke musim.
+                  Dirajut dari benang pilihan untuk tingkat kelembutan tak tertandingi dan sirkulasi udara yang baik sepanjang hari.
                 </p>
               </div>
             </FadeIn>
             <FadeIn direction="up" delay={0.3}>
               <div className="flex flex-col items-center text-center">
                 <Grip className="w-8 h-8 text-stone-800 mb-6 stroke-[1.5]" />
-                <h4 className="text-sm tracking-widest uppercase mb-4">Genggaman Superior</h4>
+                <h4 className="text-sm tracking-widest uppercase mb-4">Desain Timeless</h4>
                 <p className="text-stone-600 text-sm leading-relaxed max-w-xs">
-                  Desain alur dalam tingkat lanjut memastikan genggaman maksimal dan kontrol rotasi untuk mekanika tembakan yang sempurna.
+                  Siluet klasik yang tidak pernah lekang oleh waktu, dirancang khusus agar mudah dipadukan untuk gaya kasual maupun formal.
                 </p>
               </div>
             </FadeIn>
             <FadeIn direction="up" delay={0.5}>
               <div className="flex flex-col items-center text-center">
                 <Activity className="w-8 h-8 text-stone-800 mb-6 stroke-[1.5]" />
-                <h4 className="text-sm tracking-widest uppercase mb-4">Keseimbangan Optimal</h4>
+                <h4 className="text-sm tracking-widest uppercase mb-4">Nyaman Sepanjang Hari</h4>
                 <p className="text-stone-600 text-sm leading-relaxed max-w-xs">
-                  Konstruksi inti simetris memberikan pantulan yang konsisten dan dapat diprediksi baik di lapangan indoor maupun outdoor.
+                  Konstruksi rajutan elastis yang ringan mengikuti bentuk tubuh, memberikan kebebasan bergerak dan kenyamanan maksimal.
                 </p>
               </div>
             </FadeIn>
